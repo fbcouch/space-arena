@@ -47,7 +47,6 @@ public class PlayerController : NetworkBehaviour {
 	[Command]
 	void CmdDoFire () {
 		GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
-		missile.GetComponent<Rigidbody> ().velocity = transform.forward * 5;
 		NetworkServer.Spawn (missile);
 	}
 	

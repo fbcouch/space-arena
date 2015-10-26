@@ -8,8 +8,6 @@ public class Mover : NetworkBehaviour {
 	void Start () {
 		Rigidbody rigidBody = GetComponent<Rigidbody> ();
 		
-//		rigidBody.velocity = transform.forward * speed;
-		Debug.Log (rigidBody.position);
-		Debug.Log (rigidBody.rotation);
+		rigidBody.velocity = transform.forward * speed;
 	}
 }

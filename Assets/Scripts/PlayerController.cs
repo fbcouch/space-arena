@@ -7,6 +7,7 @@ public class PlayerController : NetworkBehaviour {
 	public float speed;
 	public GameObject shot;
 	public Transform shotSpawn;
+	public float shotSpeed;
 	public float fireRate;
 	public Camera camera;
 	private float nextFire = 0.0f;
@@ -47,6 +48,9 @@ public class PlayerController : NetworkBehaviour {
 	[Command]
 	void CmdDoFire () {
 		GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
+		Rigidbody rigidBody = missile.GetComponent<Rigidbody> ();
+		
+		rigidBody.velocity = transform.forward * shotSpeed;
 		NetworkServer.Spawn (missile);
 	}
 	

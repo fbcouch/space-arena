@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
+using ProgressBar;
 using System.Collections;
 
 public class PlayerController : NetworkBehaviour {
@@ -11,6 +12,7 @@ public class PlayerController : NetworkBehaviour {
 	public float fireRate;
 	public Camera camera;
 	public int curHealth;
+	public float throttle;
 	private float nextFire = 0.0f;
 	public GameObject explosion;
 
@@ -29,9 +31,10 @@ public class PlayerController : NetworkBehaviour {
 		float roll = Input.GetAxis ("Horizontal");
 		float pitch = Input.GetAxis ("Vertical");
 		float yaw = Input.GetAxis ("Rudder");
+		throttle = (Input.GetAxis ("Throttle") + 1);
 
 		Rigidbody rigidBody = GetComponent<Rigidbody> ();
-		rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, speed);
+		rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, speed * throttle);
 		
 		rigidBody.angularVelocity = rigidBody.rotation * new Vector3 (pitch * angularSpeed.x, -yaw * angularSpeed.y, -roll * angularSpeed.z);
 	}
@@ -45,6 +48,9 @@ public class PlayerController : NetworkBehaviour {
 			nextFire = Time.time + fireRate;
 			CmdDoFire();
 		}
+
+		GameObject throttleUI = GameObject.Find ("UIThrottle");
+		throttleUI.GetComponent<ProgressRadialBehaviour> ().Value = throttle * 50;
 	}
 
 	[Command]

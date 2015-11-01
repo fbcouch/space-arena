@@ -27,7 +27,7 @@ public class FollowCamera : MonoBehaviour {
 			
 			targetPos = target.transform.position + (target.transform.rotation * offset);
 
-			transform.position = Vector3.Lerp (transform.position, targetPos, 0.25f);
+			transform.position = Vector3.Lerp (transform.position, targetPos, 1f);
 
 			transform.rotation = target.transform.rotation;
 		}

@@ -28,8 +28,6 @@ public class PlayerController : NetworkBehaviour {
 		float pitch = Input.GetAxis ("Vertical");
 		float yaw = Input.GetAxis ("Rudder");
 
-		Debug.Log (new Vector3(yaw, pitch, roll));
-
 		Rigidbody rigidBody = GetComponent<Rigidbody> ();
 		rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, speed);
 		

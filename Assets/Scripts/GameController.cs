@@ -24,6 +24,7 @@ public class GameController : NetworkBehaviour {
 	void SpawnEnemy() {
 		Vector3 spawnLocation = new Vector3 (0, 0, 10); // Random.insideUnitSphere * 10;
 		Debug.Log ("Spawn Enemy At: " + spawnLocation);
-		GameObject.Instantiate(enemyPrefab, spawnLocation, Quaternion.identity);
+		GameObject enemy = Instantiate (enemyPrefab, spawnLocation, Quaternion.identity) as GameObject;
+		NetworkServer.Spawn (enemy);
 	}
 }

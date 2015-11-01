@@ -12,7 +12,8 @@ public class PlayerController : NetworkBehaviour {
 	public Camera camera;
 	public int curHealth;
 	private float nextFire = 0.0f;
-	
+	public GameObject explosion;
+
 	void Start () {
 		if (!isLocalPlayer) {
 			return;
@@ -73,6 +74,9 @@ public class PlayerController : NetworkBehaviour {
 		curHealth -= amount;
 		Debug.Log ("Took " + amount + " damage. Current Health: " + curHealth);
 		if (curHealth <= 0) {
+			Rigidbody rigidBody = GetComponent<Rigidbody> ();
+			GameObject explosionObj = Instantiate (explosion, rigidBody.position, rigidBody.rotation) as GameObject;
+			NetworkServer.Spawn (explosionObj);
 			NetworkServer.Destroy (this.gameObject);
 		}
 	}

@@ -14,7 +14,6 @@ public class PlayerController : NetworkBehaviour {
 	public int curHealth;
 	public float throttle;
 	private float nextFire = 0.0f;
-	public GameObject explosion;
 
 	void Start () {
 		if (!isLocalPlayer) {
@@ -80,10 +79,13 @@ public class PlayerController : NetworkBehaviour {
 		curHealth -= amount;
 		Debug.Log ("Took " + amount + " damage. Current Health: " + curHealth);
 		if (curHealth <= 0) {
-			Rigidbody rigidBody = GetComponent<Rigidbody> ();
-			GameObject explosionObj = Instantiate (explosion, rigidBody.position, rigidBody.rotation) as GameObject;
-			NetworkServer.Spawn (explosionObj);
+			GetComponent<Exploder>().Explode();
 			NetworkServer.Destroy (this.gameObject);
+			if (connectionToClient == null) {
+				GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().SpawnEnemy();
+			} else {
+				GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().Respawn(this.connectionToClient);
+			}
 		}
 	}
 }

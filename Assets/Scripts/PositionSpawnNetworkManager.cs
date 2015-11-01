@@ -15,7 +15,9 @@ public class PositionSpawnNetworkManager : NetworkManager {
 	{
 		Vector3 spawnLocation = new Vector3 (0, 0, -10); // Random.insideUnitSphere * 10;
 		Debug.Log ("Spawn At: " + spawnLocation);
-		var player = (GameObject)GameObject.Instantiate(playerPrefab, spawnLocation, Quaternion.identity);
-		NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+//		var player = (GameObject)GameObject.Instantiate(playerPrefab, spawnLocation, Quaternion.identity);
+//		NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+		GameController gameController = GameObject.FindGameObjectWithTag ("GameController").GetComponent<GameController>();
+		gameController.Respawn (conn);
 	}
 }

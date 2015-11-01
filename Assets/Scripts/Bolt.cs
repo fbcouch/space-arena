@@ -5,7 +5,6 @@ using System.Collections;
 public class Bolt : NetworkBehaviour {
 	public int damage;
 	public GameObject shooter;
-	public GameObject explosion;
 
 	void OnTriggerEnter(Collider other) {
 		if (!isServer)
@@ -17,9 +16,7 @@ public class Bolt : NetworkBehaviour {
 		if (other.gameObject.tag == "Player") {
 			PlayerController player = other.gameObject.GetComponent<PlayerController>();
 			player.TakeDamage(damage);
-			Rigidbody rigidbody = GetComponent<Rigidbody>();
-			GameObject explosionObj = Instantiate (explosion, rigidbody.position, rigidbody.rotation) as GameObject;
-			NetworkServer.Spawn (explosionObj);
+			GetComponent<Exploder>().Explode();
 			NetworkServer.Destroy (gameObject);
 		}
 	}

@@ -27,11 +27,13 @@ public class PlayerController : NetworkBehaviour {
 		float roll = Input.GetAxis ("Horizontal");
 		float pitch = Input.GetAxis ("Vertical");
 		float yaw = Input.GetAxis ("Rudder");
-		
+
+		Debug.Log (new Vector3(yaw, pitch, roll));
+
 		Rigidbody rigidBody = GetComponent<Rigidbody> ();
 		rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, speed);
 		
-		rigidBody.angularVelocity = new Vector3 (pitch * angularSpeed.x, yaw * angularSpeed.y, -roll * angularSpeed.z);
+		rigidBody.angularVelocity = rigidBody.rotation * new Vector3 (pitch * angularSpeed.x, -yaw * angularSpeed.y, -roll * angularSpeed.z);
 	}
 	
 	void Update () {

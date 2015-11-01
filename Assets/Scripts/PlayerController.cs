@@ -81,6 +81,11 @@ public class PlayerController : NetworkBehaviour {
 		if (curHealth <= 0) {
 			GetComponent<Exploder>().Explode();
 			NetworkServer.Destroy (this.gameObject);
+			if (connectionToClient == null) {
+				GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().SpawnEnemy();
+			} else {
+				GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().Respawn(this.connectionToClient);
+			}
 		}
 	}
 }

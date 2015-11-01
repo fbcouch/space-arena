@@ -10,8 +10,10 @@ public class PlayerController : NetworkBehaviour {
 	public float shotSpeed;
 	public float fireRate;
 	public Camera camera;
+	public int curHealth;
 	private float nextFire = 0.0f;
-	
+	public GameObject explosion;
+
 	void Start () {
 		if (!isLocalPlayer) {
 			return;
@@ -28,8 +30,6 @@ public class PlayerController : NetworkBehaviour {
 		float pitch = Input.GetAxis ("Vertical");
 		float yaw = Input.GetAxis ("Rudder");
 
-		Debug.Log (new Vector3(yaw, pitch, roll));
-
 		Rigidbody rigidBody = GetComponent<Rigidbody> ();
 		rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, speed);
 		
@@ -37,7 +37,7 @@ public class PlayerController : NetworkBehaviour {
 	}
 	
 	void Update () {
-		if (!isLocalPlayer) {
+	    if (!isLocalPlayer) {
 			return;
 		}
 		
@@ -50,6 +50,7 @@ public class PlayerController : NetworkBehaviour {
 	[Command]
 	void CmdDoFire () {
 		GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
+		missile.GetComponent<Bolt> ().shooter = gameObject;
 		Rigidbody rigidBody = missile.GetComponent<Rigidbody> ();
 		
 		rigidBody.velocity = transform.forward * shotSpeed;
@@ -66,6 +67,17 @@ public class PlayerController : NetworkBehaviour {
 	void DetachCamera () {
 		if (camera) {
 			camera.GetComponent<FollowCamera>().target = null;
+		}
+	}
+
+	public void TakeDamage (int amount) {
+		curHealth -= amount;
+		Debug.Log ("Took " + amount + " damage. Current Health: " + curHealth);
+		if (curHealth <= 0) {
+			Rigidbody rigidBody = GetComponent<Rigidbody> ();
+			GameObject explosionObj = Instantiate (explosion, rigidBody.position, rigidBody.rotation) as GameObject;
+			NetworkServer.Spawn (explosionObj);
+			NetworkServer.Destroy (this.gameObject);
 		}
 	}
 }

@@ -7,7 +7,7 @@ public class PlayerController : NetworkBehaviour {
 	public Vector3 angularSpeed;
 	public float speed;
 	public GameObject shot;
-	public Transform shotSpawn;
+	public Transform[] shotSpawns;
 	public float shotSpeed;
 	public float fireRate;
 	public Camera camera;
@@ -54,12 +54,14 @@ public class PlayerController : NetworkBehaviour {
 
 	[Command]
 	void CmdDoFire () {
-		GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
-		missile.GetComponent<Bolt> ().shooter = gameObject;
-		Rigidbody rigidBody = missile.GetComponent<Rigidbody> ();
+		foreach (Transform shotSpawn in shotSpawns) {
+			GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
+			missile.GetComponent<Bolt> ().shooter = gameObject;
+			Rigidbody rigidBody = missile.GetComponent<Rigidbody> ();
 		
-		rigidBody.velocity = transform.forward * shotSpeed;
-		NetworkServer.Spawn (missile);
+			rigidBody.velocity = transform.forward * shotSpeed;
+			NetworkServer.Spawn (missile);
+		}
 	}
 	
 	void AttachCamera () {

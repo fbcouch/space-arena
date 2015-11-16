@@ -8,8 +8,13 @@ public class GameController : NetworkBehaviour {
 	public int roundWait;
 
 	private ArrayList players;
-	private bool gameStarted, gameStarting;
-	private bool roundStarted, roundStarting;
+
+	[SyncVar]
+	public bool gameStarted, gameStarting;
+	[SyncVar]
+	public bool roundStarted, roundStarting, roundEnding;
+	[SyncVar]
+	public int countdown;
 
 
 	// Use this for initialization
@@ -19,8 +24,7 @@ public class GameController : NetworkBehaviour {
 		}
 
 		players = new ArrayList ();
-		gameStarted = false;
-		roundStarted = false;
+		countdown = 0;
 	}
 	
 	// Update is called once per frame
@@ -36,7 +40,7 @@ public class GameController : NetworkBehaviour {
 		if (gameStarted) {
 			if (roundStarted) {
 				GameObject[] playersRemaining = GameObject.FindGameObjectsWithTag ("Player");
-				if (playersRemaining.Length <= 1) {
+				if (playersRemaining.Length <= 1 && !roundEnding) {
 					StartCoroutine (EndRound (playersRemaining));
 				}
 			} else if (!roundStarting) { 
@@ -46,31 +50,45 @@ public class GameController : NetworkBehaviour {
 	}
 
 	IEnumerator StartGame () {
+		Debug.Log ("Game Starting");
 		gameStarting = true;
-		yield return new WaitForSeconds (startWait);
+		countdown = startWait;
+		while (countdown > 0) {
+			yield return new WaitForSeconds (1);
+			countdown--;
+		}
 		gameStarting = false;
 		gameStarted = true;
-		Debug.Log ("Game Starting");
 	}
 
 	IEnumerator StartRound() {
+		Debug.Log ("Round Starting");
 		roundStarting = true;
-		yield return new WaitForSeconds (roundWait);
+		countdown = roundWait;
+		while (countdown > 0) {
+			yield return new WaitForSeconds (1);
+			countdown--;
+		}
 		roundStarting = false;
 		foreach (NetworkConnection conn in players) {
 			Respawn (conn);
 		}
 		roundStarted = true;
-		Debug.Log ("Round Starting");
 	}
 
 	IEnumerator EndRound(GameObject[] players) {
-		yield return new WaitForSeconds (roundWait);
+		Debug.Log ("Round Ending");
+		roundEnding = true;
+		countdown = roundWait;
+		while (countdown > 0) {
+			yield return new WaitForSeconds (1);
+			countdown--;
+		}
+		roundEnding = false;
 		foreach (GameObject player in players) {
 			NetworkServer.Destroy (player);
 		}
 		roundStarted = false;
-		Debug.Log ("Round Ending");
 	}
 
 	public void SpawnEnemy() {

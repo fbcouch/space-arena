@@ -20,4 +20,28 @@ public class Bolt : NetworkBehaviour {
 			NetworkServer.Destroy (gameObject);
 		}
 	}
+
+	void Start() {
+		if (isServer)
+			return;
+
+		setRendererEnabled (false);
+		
+		Debug.Log ("Bolt Rotation: " + gameObject.transform.rotation);
+	}
+
+	void Update() {
+		if (isServer)
+			return;
+
+		setRendererEnabled (true);
+
+		Debug.Log ("Bolt Rotation: " + gameObject.transform.rotation);
+	}
+
+	void setRendererEnabled(bool enabled) {
+		foreach (Renderer r in gameObject.GetComponentsInChildren<Renderer>()) {
+			r.enabled = enabled;
+		}
+	}
 }

@@ -15,7 +15,7 @@ public class Bolt : NetworkBehaviour {
 
 		if (other.gameObject.tag == "Player") {
 			PlayerController player = other.gameObject.GetComponent<PlayerController>();
-			player.TakeDamage(damage);
+			player.TakeDamage(damage, shooter);
 			GetComponent<Exploder>().Explode();
 			NetworkServer.Destroy (gameObject);
 		}

@@ -7,6 +7,7 @@ public class NetworkPlayer : Player {
 
 	public override void Replace (GameObject ship) {
 		Ship = ship;
+		((PlayerController)ship.GetComponent<PlayerController> ()).player = this;
 		NetworkServer.ReplacePlayerForConnection (connection, ship, 0);
 	}
 

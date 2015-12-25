@@ -70,8 +70,8 @@ public class GameController : NetworkBehaviour {
 			countdown--;
 		}
 		roundStarting = false;
-		foreach (NetworkConnection conn in players) {
-			Respawn (conn);
+		foreach (Player player in players) {
+			Respawn (player);
 		}
 		roundStarted = true;
 	}
@@ -91,27 +91,20 @@ public class GameController : NetworkBehaviour {
 		roundStarted = false;
 	}
 
-	public void SpawnEnemy() {
-		Vector3 spawnLocation = new Vector3 (0, 0, 10); // Random.insideUnitSphere * 10;
-		Debug.Log ("Spawn Enemy At: " + spawnLocation);
-		GameObject enemy = Instantiate (enemyPrefab, spawnLocation, Quaternion.identity) as GameObject;
-		NetworkServer.Spawn (enemy);
-	}
-
-	public void Respawn (NetworkConnection connectionToClient) {
+	public void Respawn (Player player) {
 		if (!isServer) {
 			return;
 		}
 
 		Vector3 spawnLocation = Random.insideUnitSphere * 100;
 		Debug.Log ("Spawn At: " + spawnLocation);
-		var player = (GameObject)GameObject.Instantiate(enemyPrefab, spawnLocation, Quaternion.identity);
-		player.transform.LookAt(Vector3.zero);
-		Debug.Log ("Spawn Rotation: " + player.transform.rotation.eulerAngles);
-		NetworkServer.ReplacePlayerForConnection (connectionToClient, player, 0);
+		var ship = (GameObject)GameObject.Instantiate(enemyPrefab, spawnLocation, Quaternion.identity);
+		ship.transform.LookAt(Vector3.zero);
+		Debug.Log ("Spawn Rotation: " + ship.transform.rotation.eulerAngles);
+		player.Replace (ship);
 	}
 
-	public void AddPlayer (NetworkConnection connectionToClient) {
-		players.Add (connectionToClient);
+	public void AddPlayer (Player player) {
+		players.Add (player);
 	}
 }

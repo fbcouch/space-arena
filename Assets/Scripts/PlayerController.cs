@@ -17,6 +17,7 @@ public class PlayerController : NetworkBehaviour {
 
 	void Start () {
 		if (!isLocalPlayer) {
+
 			return;
 		}
 

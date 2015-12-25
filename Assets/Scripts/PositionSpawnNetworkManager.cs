@@ -7,6 +7,10 @@ public class PositionSpawnNetworkManager : NetworkManager {
 	public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
 	{
 		GameController gameController = GameObject.FindGameObjectWithTag ("GameController").GetComponent<GameController>();
-		gameController.AddPlayer (conn);
+		NetworkPlayer player = new NetworkPlayer ();
+		player.Connection = conn;
+		gameController.AddPlayer (player);
+
+		gameController.AddPlayer (new Player ());
 	}
 }

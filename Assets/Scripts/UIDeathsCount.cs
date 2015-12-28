@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class UIDeathsCount : MonoBehaviour {
-	public Player player;
+	public PlayerController player;
 	
 	Text textComponent;
 	
@@ -15,6 +15,8 @@ public class UIDeathsCount : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (player == null) {
+			GameObject playerObj = GameObject.FindGameObjectWithTag("Player") as GameObject;
+			if (playerObj) player = playerObj.GetComponent<PlayerController>();
 			return;
 		}
 		

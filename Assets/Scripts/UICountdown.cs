@@ -16,6 +16,9 @@ public class UICountdown : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (!gameController) {
+			GameObject controller = GameObject.FindGameObjectWithTag("GameController");
+			if (controller)
+				gameController = controller.GetComponent<GameController>();
 			return;
 		}
 

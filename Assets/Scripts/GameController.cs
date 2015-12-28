@@ -19,11 +19,15 @@ public class GameController : NetworkBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		if (!isServer) { 
+		Debug.Log ("GameController#Start");
+		DontDestroyOnLoad (this);
+		if (!isServer) {
 			return;
 		}
 
-		players = new ArrayList ();
+		Debug.Log ("GameController#Start - isServer");
+
+		players = ((PositionSpawnNetworkManager)GameObject.FindGameObjectWithTag ("NetworkManager").GetComponent<PositionSpawnNetworkManager> ()).players;
 		countdown = 0;
 	}
 	
@@ -39,9 +43,13 @@ public class GameController : NetworkBehaviour {
 
 		if (gameStarted) {
 			if (roundStarted) {
-				GameObject[] playersRemaining = GameObject.FindGameObjectsWithTag ("Player");
-				if (playersRemaining.Length <= 1 && !roundEnding) {
-					StartCoroutine (EndRound (playersRemaining));
+				int playersRemaining = 0;
+				foreach (GameObject playerObj in GameObject.FindGameObjectsWithTag ("Player")) {
+					if (!((PlayerController)playerObj.GetComponent<PlayerController>()).isDead)
+						playersRemaining += 1;
+				}
+				if (playersRemaining <= 1 && !roundEnding) {
+					StartCoroutine (EndRound ());
 				}
 			} else if (!roundStarting) { 
 				StartCoroutine (StartRound());
@@ -76,7 +84,7 @@ public class GameController : NetworkBehaviour {
 		roundStarted = true;
 	}
 
-	IEnumerator EndRound(GameObject[] players) {
+	IEnumerator EndRound() {
 		Debug.Log ("Round Ending");
 		roundEnding = true;
 		countdown = roundWait;
@@ -85,8 +93,10 @@ public class GameController : NetworkBehaviour {
 			countdown--;
 		}
 		roundEnding = false;
-		foreach (GameObject player in players) {
-			NetworkServer.Destroy (player);
+		foreach (Player player in players) {
+			if (player.Ship)
+				((PlayerController)player.Ship.GetComponent<PlayerController>()).isDead = true;
+//			NetworkServer.Destroy (player);
 		}
 		roundStarted = false;
 	}
@@ -95,16 +105,28 @@ public class GameController : NetworkBehaviour {
 		if (!isServer) {
 			return;
 		}
-
-		Vector3 spawnLocation = Random.insideUnitSphere * 100;
+		Vector2 spawnLocation = Random.insideUnitCircle * 10;
 		Debug.Log ("Spawn At: " + spawnLocation);
-		var ship = (GameObject)GameObject.Instantiate(enemyPrefab, spawnLocation, Quaternion.identity);
+		var ship = player.Ship;
+		if (ship != null) {
+			ship.transform.position = new Vector3 (spawnLocation.x, 0, spawnLocation.y);
+		} else {
+			ship = player.Ship = Instantiate (enemyPrefab, new Vector3 (spawnLocation.x, 0, spawnLocation.y), Quaternion.identity) as GameObject;
+		}
+
 		ship.transform.LookAt(Vector3.zero);
 		Debug.Log ("Spawn Rotation: " + ship.transform.rotation.eulerAngles);
 		player.Replace (ship);
 	}
 
 	public void AddPlayer (Player player) {
+		Debug.Log ("GameController#AddPlayer");
+		if (!isServer) {
+			return;
+		}
+		Debug.Log ("GameController#AddPlayer - isServer");
+		if (players == null)
+			players = new ArrayList();
 		players.Add (player);
 	}
 }

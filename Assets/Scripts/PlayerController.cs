@@ -13,18 +13,22 @@ public class PlayerController : NetworkBehaviour {
 	public Camera camera;
 	public int curHealth;
 	public float throttle;
-	public Player player;
+
 	private float nextFire = 0.0f;
-	private UIKillsCount killsCounter;
-	private UIDeathsCount deathsCounter;
+
+	public Player player;
+
+	[SyncVar]
+	public int kills = 0;
+	[SyncVar]
+	public int deaths = 0;
+	[SyncVar]
+	public bool isDead = true;
 
 	void Start () {
 		if (!isLocalPlayer) {
 			return;
 		}
-
-		killsCounter = (UIKillsCount)GameObject.FindGameObjectWithTag ("UIKillsCount").GetComponent<UIKillsCount> ();
-		deathsCounter = (UIDeathsCount)GameObject.FindGameObjectWithTag ("UIDeathsCount").GetComponent<UIDeathsCount> ();
 
 		AttachCamera ();
 	}
@@ -48,12 +52,6 @@ public class PlayerController : NetworkBehaviour {
 	    if (!isLocalPlayer) {
 			return;
 		}
-
-		if (killsCounter != null)
-			killsCounter.player = player;
-
-		if (deathsCounter != null)
-			deathsCounter.player = player;
 		
 		if (Input.GetButton ("Fire1") && Time.time > nextFire) {
 			nextFire = Time.time + fireRate;
@@ -94,9 +92,10 @@ public class PlayerController : NetworkBehaviour {
 		Debug.Log ("Took " + amount + " damage. Current Health: " + curHealth);
 		if (curHealth <= 0) {
 			GetComponent<Exploder>().Explode();
-			NetworkServer.Destroy (this.gameObject);
-			player.deaths += 1;
-			((PlayerController)shooter.GetComponent<PlayerController> ()).player.kills += 1;
+//			NetworkServer.Destroy (this.gameObject);
+			isDead = true;
+			deaths += 1;
+			((PlayerController)shooter.GetComponent<PlayerController> ()).kills += 1;
 		}
 	}
 }

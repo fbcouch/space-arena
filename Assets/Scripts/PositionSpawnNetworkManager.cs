@@ -3,14 +3,30 @@ using UnityEngine.Networking;
 using System.Collections;
 
 public class PositionSpawnNetworkManager : NetworkManager {
+	public ArrayList players = new ArrayList();
 
 	public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
 	{
-		GameController gameController = GameObject.FindGameObjectWithTag ("GameController").GetComponent<GameController>();
 		NetworkPlayer player = new NetworkPlayer ();
-		player.Connection = conn;
-		gameController.AddPlayer (player);
 
-		gameController.AddPlayer (new Player ());
+		player.Connection = conn;
+		players.Add (player);
+
+		players.Add (new Player ());
+
+		if (players.Count >= 2) {
+			Application.LoadLevel ("arena");
+			((LevelLoader)GameObject.Find ("LevelLoader").GetComponent<LevelLoader>()).RpcLoadArena();
+		}
 	}
+
+//	public override void OnServerRemovePlayer (NetworkConnection conn, UnityEngine.Networking.PlayerController player)
+//	{
+//		base.OnServerRemovePlayer (conn, player);
+//		foreach (NetworkPlayer networkPlayer in players) {
+//			if (networkPlayer.Connection == conn) {
+//				players.Remove(networkPlayer);
+//			}
+//		}
+//	}
 }

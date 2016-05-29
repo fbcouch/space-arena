@@ -45,7 +45,8 @@ public class GameController : NetworkBehaviour {
 			if (roundStarted) {
 				int playersRemaining = 0;
 				foreach (GameObject playerObj in GameObject.FindGameObjectsWithTag ("Player")) {
-					if (!((PlayerController)playerObj.GetComponent<PlayerController>()).isDead)
+					PlayerController playerController = (PlayerController)playerObj.GetComponent<PlayerController>();
+					if (playerController && !playerController.isDead)
 						playersRemaining += 1;
 				}
 				if (playersRemaining <= 1 && !roundEnding) {
@@ -113,6 +114,8 @@ public class GameController : NetworkBehaviour {
 		} else {
 			ship = player.Ship = Instantiate (enemyPrefab, new Vector3 (spawnLocation.x, 0, spawnLocation.y), Quaternion.identity) as GameObject;
 		}
+
+		ship.GetComponent<PlayerController> ().OnRespawn ();
 
 		ship.transform.LookAt(Vector3.zero);
 		Debug.Log ("Spawn Rotation: " + ship.transform.rotation.eulerAngles);

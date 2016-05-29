@@ -9,10 +9,14 @@ public class PositionSpawnNetworkManager : NetworkManager {
 	{
 		NetworkPlayer player = new NetworkPlayer ();
 
-		player.Connection = conn;
-		players.Add (player);
+//		Player other = new Player ();
+//		other.Name = "Player 2";
+//		players.Add (other);
 
-		players.Add (new Player ());
+		player.Connection = conn;
+		player.Name = "Player " + playerControllerId;
+		players.Add (player);
+	
 
 		if (players.Count >= 2) {
 			Application.LoadLevel ("arena");

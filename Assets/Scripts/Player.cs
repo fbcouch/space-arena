@@ -4,6 +4,7 @@ using UnityEngine.Networking;
 
 public class Player {
 	GameObject ship;
+	string name;
 
 	public virtual void Replace (GameObject ship) {
 		if (ship != Ship) {
@@ -21,6 +22,15 @@ public class Player {
 		}
 		set {
 			ship = value;
+		}
+	}
+
+	public string Name {
+		get {
+			return this.name;
+		}
+		set {
+			name = value;
 		}
 	}
 }

@@ -12,6 +12,7 @@ public class PlayerController : NetworkBehaviour {
 	public float fireRate;
 	public Camera camera;
 	public int curHealth;
+	public int maxHealth;
 	public float throttle;
 
 	private float nextFire = 0.0f;
@@ -25,6 +26,8 @@ public class PlayerController : NetworkBehaviour {
 	[SyncVar]
 	public bool isDead = true;
 
+	bool wasDead = true;
+
 	void Start () {
 		if (!isLocalPlayer) {
 			return;
@@ -34,9 +37,9 @@ public class PlayerController : NetworkBehaviour {
 	}
 	
 	void FixedUpdate () {
-		if (!isLocalPlayer) {
-			return;
-		}
+		if (!isLocalPlayer) return;
+		if (isDead) return;
+
 		float roll = Input.GetAxis ("Horizontal");
 		float pitch = Input.GetAxis ("Vertical");
 		float yaw = Input.GetAxis ("Rudder");
@@ -49,6 +52,13 @@ public class PlayerController : NetworkBehaviour {
 	}
 	
 	void Update () {
+		if (isDead != wasDead) {
+			Debug.Log ("Dead status changed");
+			setRendererEnabled (!isDead);
+			setColliderEnabled (!isDead);
+			wasDead = isDead;
+		}
+
 	    if (!isLocalPlayer) {
 			return;
 		}
@@ -64,6 +74,8 @@ public class PlayerController : NetworkBehaviour {
 
 	[Command]
 	void CmdDoFire () {
+		if (isDead) return;
+
 		foreach (Transform shotSpawn in shotSpawns) {
 			GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
 			missile.GetComponent<Bolt> ().shooter = gameObject;
@@ -87,7 +99,20 @@ public class PlayerController : NetworkBehaviour {
 		}
 	}
 
+	public void OnRespawn () {
+		setRendererEnabled (true);
+		setColliderEnabled (true);
+		isDead = false;
+		curHealth = maxHealth;
+		Rigidbody rigidBody = GetComponent<Rigidbody> ();
+		rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, 0);
+		
+		rigidBody.angularVelocity = rigidBody.rotation * new Vector3 (0, 0, 0);
+	}
+
 	public void TakeDamage (int amount, GameObject shooter) {
+		if (isDead)
+			return;
 		curHealth -= amount;
 		Debug.Log ("Took " + amount + " damage. Current Health: " + curHealth);
 		if (curHealth <= 0) {
@@ -96,6 +121,20 @@ public class PlayerController : NetworkBehaviour {
 			isDead = true;
 			deaths += 1;
 			((PlayerController)shooter.GetComponent<PlayerController> ()).kills += 1;
+			setRendererEnabled (false);
+			setColliderEnabled (false);
+		}
+	}
+
+	void setRendererEnabled(bool enabled) {
+		foreach (Renderer r in gameObject.GetComponentsInChildren<Renderer>()) {
+			r.enabled = enabled;
+		}
+	}
+
+	void setColliderEnabled(bool enabled) {
+		foreach (Collider r in gameObject.GetComponentsInChildren<Collider>()) {
+			r.enabled = enabled;
 		}
 	}
 }

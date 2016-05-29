@@ -14,6 +14,9 @@ public class PlayerController : NetworkBehaviour {
 	public int curHealth;
 	public int maxHealth;
 	public float throttle;
+	public Texture2D boxImage;
+	public Texture2D pointerImage;
+	public float pointerSize = 16.0f;
 
 	private float nextFire = 0.0f;
 
@@ -25,6 +28,8 @@ public class PlayerController : NetworkBehaviour {
 	public int deaths = 0;
 	[SyncVar]
 	public bool isDead = true;
+	[SyncVar]
+	public string playerName;
 
 	bool wasDead = true;
 
@@ -70,6 +75,49 @@ public class PlayerController : NetworkBehaviour {
 
 		GameObject throttleUI = GameObject.Find ("UIThrottle");
 		throttleUI.GetComponent<ProgressRadialBehaviour> ().Value = throttle * 50;
+	}
+
+	void OnGUI () {
+		if (isLocalPlayer)
+			return;
+		if (isDead)
+			return;
+		Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (transform.position);
+		float distance = Vector3.Distance (transform.position, Camera.main.transform.position) / 4;
+
+		if (itemScreenPosition.z > 0) {
+			float width = boxImage.width / distance;
+			if (width < 16)
+				width = 16;
+			float height = boxImage.height / distance;
+			if (height < 16)
+				height = 16;
+			float posX = itemScreenPosition.x - width / 2;
+			float posY = Screen.height - itemScreenPosition.y - height / 2;
+			GUIStyle style = new GUIStyle ();
+			style.fontSize = (int)(24 / distance);
+			if (style.fontSize < 12)
+				style.fontSize = 12;
+			style.alignment = TextAnchor.UpperLeft;
+			style.normal.textColor = Color.white;
+			GUI.contentColor = Color.white;
+			GUI.color = Color.magenta;
+			GUI.DrawTexture (new Rect (posX, posY, width, height), boxImage);
+			GUI.Label (new Rect (posX, posY - style.fontSize * 1.25f, width, height), "[" + kills + "/" + deaths + "] " + playerName, style);
+		}
+		Rect screenRect = new Rect (0, 0, Screen.width, Screen.height);
+		if (itemScreenPosition.z <= 0 || !screenRect.Contains(new Vector2(itemScreenPosition.x, itemScreenPosition.y))) {
+			float mul = itemScreenPosition.z / Mathf.Abs (itemScreenPosition.z);
+			Vector2 location = new Vector2 (itemScreenPosition.x - Screen.width / 2, itemScreenPosition.y - Screen.height / 2);
+			location = location / location.magnitude;
+			location = location * 256 * mul;
+
+			GUI.color = Color.magenta;
+			GUI.DrawTexture (new Rect (Screen.width / 2 + location.x - pointerSize / 2, Screen.height / 2 - location.y - pointerSize / 2, pointerSize, pointerSize), pointerImage);
+			GUI.color = Color.green;
+			GUI.DrawTexture (new Rect (itemScreenPosition.x - 8, Screen.height - itemScreenPosition.y - 8, 16, 16), pointerImage);	
+		}
+
 	}
 
 	[Command]

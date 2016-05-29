@@ -5,6 +5,9 @@ using UnityEngine.Networking;
 public class NetworkPlayer : Player {
 	NetworkConnection connection;
 
+	public NetworkPlayer(string playerName) : base(playerName) {
+	}
+
 	public override void Replace (GameObject ship) {
 		Ship = ship;
 		PlayerController playerController = (PlayerController)ship.GetComponent<PlayerController> ();

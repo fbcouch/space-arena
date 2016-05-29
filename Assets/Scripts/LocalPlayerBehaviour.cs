@@ -21,11 +21,9 @@ public class LocalPlayerBehaviour : MonoBehaviour {
 	public virtual void OnUpdate () {}
 
 	PlayerController FindPlayerController () {
-		Debug.Log ("Looking for player...");
 		foreach (GameObject playerObj in GameObject.FindGameObjectsWithTag ("Player")) {
 			PlayerController playerController = (PlayerController)playerObj.GetComponent<PlayerController>();
-			if (playerController.isLocalPlayer) {
-				Debug.Log ("Found local player!");
+			if (playerController && playerController.isLocalPlayer) {
 				return playerController;
 			}
 		}

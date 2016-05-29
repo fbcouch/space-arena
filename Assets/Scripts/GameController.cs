@@ -115,7 +115,9 @@ public class GameController : NetworkBehaviour {
 			ship = player.Ship = Instantiate (enemyPrefab, new Vector3 (spawnLocation.x, 0, spawnLocation.y), Quaternion.identity) as GameObject;
 		}
 
-		ship.GetComponent<PlayerController> ().OnRespawn ();
+		PlayerController playerController = ship.GetComponent<PlayerController> ();
+		playerController.OnRespawn ();
+		playerController.playerName = player.Name;
 
 		ship.transform.LookAt(Vector3.zero);
 		Debug.Log ("Spawn Rotation: " + ship.transform.rotation.eulerAngles);

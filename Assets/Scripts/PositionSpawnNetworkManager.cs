@@ -7,17 +7,13 @@ public class PositionSpawnNetworkManager : NetworkManager {
 
 	public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
 	{
-		NetworkPlayer player = new NetworkPlayer ();
+		players.Add (new Player("NPC " + players.Count));
+		players.Add (new Player("NPC " + players.Count));
 
-//		Player other = new Player ();
-//		other.Name = "Player 2";
-//		players.Add (other);
-
+		NetworkPlayer player = new NetworkPlayer ("Player " + players.Count);
 		player.Connection = conn;
-		player.Name = "Player " + playerControllerId;
 		players.Add (player);
 	
-
 		if (players.Count >= 2) {
 			Application.LoadLevel ("arena");
 			((LevelLoader)GameObject.Find ("LevelLoader").GetComponent<LevelLoader>()).RpcLoadArena();

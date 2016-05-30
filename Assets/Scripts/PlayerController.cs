@@ -10,10 +10,13 @@ public class PlayerController : NetworkBehaviour {
   public Camera camera;
 
   public Texture2D boxImage;
+  public Texture2D leadTargetImage;
+  public float leadTargetSize = 12.0f;
   public Texture2D pointerImage;
   public float pointerSize = 16.0f;
   public Texture2D minimapImage;
-  public float minimapPointerSize = 8.0f;
+  public Texture2D minimapPointerImage;
+  public float minimapPointerSize = 6.0f;
   public Texture2D reticuleImage;
   public Color reticuleColor = Color.white;
   public Vector2 reticuleOffset = new Vector2(0, 0);
@@ -58,15 +61,17 @@ public class PlayerController : NetworkBehaviour {
   private Vector3 dampAngularVelocity = Vector3.zero;
 
   void FixedUpdate () {
-    if (!isLocalPlayer) return;
     if (isDead) return;
+    Rigidbody rigidBody = GetComponent<Rigidbody> ();
+    if (!isLocalPlayer) {
+    //   rigidBody.velocity = transform.forward * 25.0f;
+      return;
+    }
 
     float roll = Input.GetAxis ("Horizontal");
     float pitch = Input.GetAxis ("Vertical");
     float yaw = Input.GetAxis ("Rudder");
     throttle = (Input.GetAxis ("Throttle") + 1) / 2;
-
-    Rigidbody rigidBody = GetComponent<Rigidbody> ();
 
     // Clamp speed
     float targetSpeed = throttle * maxSpeed;
@@ -126,6 +131,8 @@ public class PlayerController : NetworkBehaviour {
     foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag ("Player")) {
       if (gameObject == this.gameObject)
         continue;
+      // if (gameObject.GetComponent<PlayerController> ().isDead)
+      //   continue;
       Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (gameObject.transform.position);
       float distance = (gameObject.transform.position - Camera.main.transform.position).sqrMagnitude;
       if (itemScreenPosition.z >= 0 && new Vector2 (Screen.width / 2 - itemScreenPosition.x, Screen.height / 2 - itemScreenPosition.y).sqrMagnitude <= Mathf.Pow(reticuleImage.width / 2, 2)) {
@@ -212,7 +219,27 @@ public class PlayerController : NetworkBehaviour {
     loc = Vector3.ClampMagnitude(loc, 2000);
     loc = loc / 2000 * 120;
     GUI.color = colorForGameObject(gameObject);
-    GUI.DrawTexture (new Rect (128 + loc.x - minimapPointerSize / 2, Screen.height - 128 - loc.y - minimapPointerSize / 2, minimapPointerSize, minimapPointerSize), pointerImage);
+    GUI.DrawTexture (new Rect (128 + loc.x - minimapPointerSize / 2, Screen.height - 128 - loc.y - minimapPointerSize / 2, minimapPointerSize, minimapPointerSize), minimapPointerImage);
+  }
+
+  void DrawLeadIndicator (GameObject gameObject, PlayerController playerController) {
+    float distance = Vector3.Distance(transform.position, gameObject.transform.position);
+    float time = distance / shotSpeed;
+    Vector3 velocity = gameObject.GetComponent<Rigidbody> ().velocity;
+    Vector3 newPosition = gameObject.transform.position + velocity * time;
+    Debug.Log ("Target Velocity: " + velocity);
+    Debug.Log ("Distance: " + distance + "m");
+    Debug.Log ("Current Position: " + gameObject.transform.position);
+    Debug.Log ("Lead Position: " + newPosition);
+
+    Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (newPosition);
+
+    if (itemScreenPosition.z > 0) {
+      float posX = itemScreenPosition.x - leadTargetSize / 2;
+      float posY = Screen.height - itemScreenPosition.y - leadTargetSize / 2;
+      GUI.color = Color.white;
+      GUI.DrawTexture (new Rect (posX, posY, leadTargetSize, leadTargetSize), leadTargetImage);
+    }
   }
 
   void OnGUI () {
@@ -234,6 +261,8 @@ public class PlayerController : NetworkBehaviour {
       DrawHUDBox (gameObject, otherController);
       DrawHUDPointer (gameObject, otherController);
       DrawHUDMinimap (gameObject, otherController);
+      if (target == gameObject)
+        DrawLeadIndicator (gameObject, otherController);
     }
   }
 

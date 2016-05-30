@@ -64,7 +64,6 @@ public class PlayerController : NetworkBehaviour {
     if (isDead) return;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
     if (!isLocalPlayer) {
-    //   rigidBody.velocity = transform.forward * 25.0f;
       return;
     }
 
@@ -131,8 +130,9 @@ public class PlayerController : NetworkBehaviour {
     foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag ("Player")) {
       if (gameObject == this.gameObject)
         continue;
-      // if (gameObject.GetComponent<PlayerController> ().isDead)
-      //   continue;
+      var playerController = gameObject.GetComponent<PlayerController> ();
+      if (playerController == null || playerController.isDead)
+        continue;
       Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (gameObject.transform.position);
       float distance = (gameObject.transform.position - Camera.main.transform.position).sqrMagnitude;
       if (itemScreenPosition.z >= 0 && new Vector2 (Screen.width / 2 - itemScreenPosition.x, Screen.height / 2 - itemScreenPosition.y).sqrMagnitude <= Mathf.Pow(reticuleImage.width / 2, 2)) {
@@ -181,7 +181,7 @@ public class PlayerController : NetworkBehaviour {
       style.fontSize = (int)(24 / distance);
       if (style.fontSize < 12)
         style.fontSize = 12;
-      style.alignment = TextAnchor.UpperLeft;
+      style.alignment = TextAnchor.UpperCenter;
       style.normal.textColor = Color.white;
       GUI.color = colorForGameObject(gameObject);
       GUI.DrawTexture (new Rect (posX, posY, width, height), boxImage);
@@ -227,18 +227,22 @@ public class PlayerController : NetworkBehaviour {
     float time = distance / shotSpeed;
     Vector3 velocity = gameObject.GetComponent<Rigidbody> ().velocity;
     Vector3 newPosition = gameObject.transform.position + velocity * time;
-    Debug.Log ("Target Velocity: " + velocity);
-    Debug.Log ("Distance: " + distance + "m");
-    Debug.Log ("Current Position: " + gameObject.transform.position);
-    Debug.Log ("Lead Position: " + newPosition);
 
     Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (newPosition);
 
     if (itemScreenPosition.z > 0) {
       float posX = itemScreenPosition.x - leadTargetSize / 2;
       float posY = Screen.height - itemScreenPosition.y - leadTargetSize / 2;
-      GUI.color = Color.white;
+      GUIStyle style = new GUIStyle ();
+      if (distance < shotSpeed * 2) {
+        GUI.color = style.normal.textColor = Color.white;
+      } else {
+        GUI.color = style.normal.textColor = new Color(255f, 255f, 255f, 0.75f);
+      }
       GUI.DrawTexture (new Rect (posX, posY, leadTargetSize, leadTargetSize), leadTargetImage);
+
+      style.alignment = TextAnchor.LowerCenter;
+      GUI.Label (new Rect (itemScreenPosition.x - 50, Screen.height - itemScreenPosition.y + leadTargetSize, 100, 10f), Mathf.Round(distance) + "m", style);
     }
   }
 

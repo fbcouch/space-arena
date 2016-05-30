@@ -19,6 +19,9 @@ public class PlayerController : NetworkBehaviour {
 	public float pointerSize = 16.0f;
 	public Texture2D minimapImage;
 	public float minimapPointerSize = 8.0f;
+	public Texture2D reticuleImage;
+	public Color reticuleColor = Color.white;
+	public Vector2 reticuleOffset = new Vector2(0, 0);
 
 	private float nextFire = 0.0f;
 
@@ -83,6 +86,8 @@ public class PlayerController : NetworkBehaviour {
 		if (isLocalPlayer) {
 			GUI.color = Color.white;
 			GUI.DrawTexture (new Rect (0, Screen.height - minimapImage.height, minimapImage.width, minimapImage.height), minimapImage);
+			GUI.color = reticuleColor;
+			GUI.DrawTexture (new Rect ((Screen.width - reticuleImage.width) / 2 + reticuleOffset.x, (Screen.height - reticuleImage.height) / 2 + reticuleOffset.y, reticuleImage.width, reticuleImage.height), reticuleImage);
 			return;
 		}
 		if (isDead)

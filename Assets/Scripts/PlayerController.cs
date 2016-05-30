@@ -153,7 +153,8 @@ public class PlayerController : NetworkBehaviour {
     GUIStyle style = new GUIStyle ();
     style.normal.textColor = Color.white;
     style.alignment = TextAnchor.LowerRight;
-    GUI.Label (new Rect (0, Screen.height - 50, Screen.width, 50), "Velocity: " + rigidBody.velocity.magnitude + "m/s", style);
+    GUI.Label (new Rect (0, Screen.height - 50, Screen.width, 50), "Velocity: " + Mathf.Round(rigidBody.velocity.magnitude) + "m/s", style);
+    GUI.Label (new Rect (0, Screen.height - 64, Screen.width, 50), "Hull: " + Mathf.Round(curHealth / maxHealth * 100.0f) + "%", style);
   }
 
   void DrawHUDBox (GameObject gameObject, PlayerController playerController) {
@@ -208,8 +209,8 @@ public class PlayerController : NetworkBehaviour {
     Vector3 final = Quaternion.Inverse(Camera.main.transform.rotation) * heading;
 
     Vector2 loc = new Vector2(final.x, final.z);
-    if (loc.sqrMagnitude >= 120 * 120)
-      loc = loc / loc.magnitude * 120;
+    loc = Vector3.ClampMagnitude(loc, 2000);
+    loc = loc / 2000 * 120;
     GUI.color = colorForGameObject(gameObject);
     GUI.DrawTexture (new Rect (128 + loc.x - minimapPointerSize / 2, Screen.height - 128 - loc.y - minimapPointerSize / 2, minimapPointerSize, minimapPointerSize), pointerImage);
   }

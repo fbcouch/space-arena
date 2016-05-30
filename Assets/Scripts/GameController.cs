@@ -6,6 +6,7 @@ public class GameController : NetworkBehaviour {
 	public GameObject enemyPrefab;
 	public int startWait;
 	public int roundWait;
+	public float spawnRadius;
 
 	private ArrayList players;
 
@@ -106,7 +107,7 @@ public class GameController : NetworkBehaviour {
 		if (!isServer) {
 			return;
 		}
-		Vector2 spawnLocation = Random.insideUnitCircle * 10;
+		Vector2 spawnLocation = Random.insideUnitCircle * spawnRadius;
 		Debug.Log ("Spawn At: " + spawnLocation);
 		var ship = player.Ship;
 		if (ship != null) {

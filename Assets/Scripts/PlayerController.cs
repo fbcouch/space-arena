@@ -17,6 +17,8 @@ public class PlayerController : NetworkBehaviour {
 	public Texture2D boxImage;
 	public Texture2D pointerImage;
 	public float pointerSize = 16.0f;
+	public Texture2D minimapImage;
+	public float minimapPointerSize = 8.0f;
 
 	private float nextFire = 0.0f;
 
@@ -78,8 +80,11 @@ public class PlayerController : NetworkBehaviour {
 	}
 
 	void OnGUI () {
-		if (isLocalPlayer)
+		if (isLocalPlayer) {
+			GUI.color = Color.white;
+			GUI.DrawTexture (new Rect (0, Screen.height - minimapImage.height, minimapImage.width, minimapImage.height), minimapImage);
 			return;
+		}
 		if (isDead)
 			return;
 		Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (transform.position);
@@ -114,10 +119,20 @@ public class PlayerController : NetworkBehaviour {
 
 			GUI.color = Color.magenta;
 			GUI.DrawTexture (new Rect (Screen.width / 2 + location.x - pointerSize / 2, Screen.height / 2 - location.y - pointerSize / 2, pointerSize, pointerSize), pointerImage);
-			GUI.color = Color.green;
-			GUI.DrawTexture (new Rect (itemScreenPosition.x - 8, Screen.height - itemScreenPosition.y - 8, 16, 16), pointerImage);	
+//			GUI.color = Color.green;
+//			GUI.DrawTexture (new Rect (itemScreenPosition.x - 8, Screen.height - itemScreenPosition.y - 8, 16, 16), pointerImage);	
 		}
+		Vector3 heading = transform.position - Camera.main.transform.position;
+		Debug.Log ("Heading: " + heading.ToString ());
+		Vector3 final = Quaternion.Inverse(Camera.main.transform.rotation) * heading;
 
+		Debug.Log ("Rotated Heading: " + final.ToString ());
+		Vector2 loc = new Vector2(final.x, final.z);
+		if (loc.sqrMagnitude >= 120 * 120)
+			loc = loc / loc.magnitude * 120;
+		Debug.Log ("Minimap Location: " + loc.ToString ());
+		GUI.color = Color.magenta;
+		GUI.DrawTexture (new Rect (128 + loc.x - minimapPointerSize / 2, Screen.height - 128 - loc.y - minimapPointerSize / 2, minimapPointerSize, minimapPointerSize), pointerImage);
 	}
 
 	[Command]

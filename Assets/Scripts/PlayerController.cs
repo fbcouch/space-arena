@@ -24,6 +24,7 @@ public class PlayerController : NetworkBehaviour {
 	public Vector2 reticuleOffset = new Vector2(0, 0);
 
 	private float nextFire = 0.0f;
+	private GameObject target;
 
 	public Player player;
 
@@ -82,18 +83,19 @@ public class PlayerController : NetworkBehaviour {
 		throttleUI.GetComponent<ProgressRadialBehaviour> ().Value = throttle * 50;
 	}
 
-	void OnGUI () {
-		if (isLocalPlayer) {
-			GUI.color = Color.white;
-			GUI.DrawTexture (new Rect (0, Screen.height - minimapImage.height, minimapImage.width, minimapImage.height), minimapImage);
-			GUI.color = reticuleColor;
-			GUI.DrawTexture (new Rect ((Screen.width - reticuleImage.width) / 2 + reticuleOffset.x, (Screen.height - reticuleImage.height) / 2 + reticuleOffset.y, reticuleImage.width, reticuleImage.height), reticuleImage);
-			return;
-		}
-		if (isDead)
-			return;
-		Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (transform.position);
-		float distance = Vector3.Distance (transform.position, Camera.main.transform.position) / 4;
+	void DrawReticule () {
+		GUI.color = reticuleColor;
+		GUI.DrawTexture (new Rect ((Screen.width - reticuleImage.width) / 2 + reticuleOffset.x, (Screen.height - reticuleImage.height) / 2 + reticuleOffset.y, reticuleImage.width, reticuleImage.height), reticuleImage);
+	}
+
+	void DrawMinimap () {
+		GUI.color = Color.white;
+		GUI.DrawTexture (new Rect (0, Screen.height - minimapImage.height, minimapImage.width, minimapImage.height), minimapImage);
+	}
+
+	void DrawHUDBox (GameObject gameObject, PlayerController playerController) {
+		Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (gameObject.transform.position);
+		float distance = Vector3.Distance (gameObject.transform.position, Camera.main.transform.position) / 4;
 
 		if (itemScreenPosition.z > 0) {
 			float width = boxImage.width / distance;
@@ -110,11 +112,22 @@ public class PlayerController : NetworkBehaviour {
 				style.fontSize = 12;
 			style.alignment = TextAnchor.UpperLeft;
 			style.normal.textColor = Color.white;
-			GUI.contentColor = Color.white;
-			GUI.color = Color.magenta;
+			GUI.color = colorForGameObject(gameObject);
 			GUI.DrawTexture (new Rect (posX, posY, width, height), boxImage);
-			GUI.Label (new Rect (posX, posY - style.fontSize * 1.25f, width, height), "[" + kills + "/" + deaths + "] " + playerName, style);
+			GUI.Label (new Rect (posX, posY - style.fontSize * 1.25f, width, height), "[" + playerController.kills + "/" + playerController.deaths + "] " + playerController.playerName, style);
 		}
+	}
+
+	Color colorForGameObject (GameObject gameObject) {
+		if (gameObject == target) {
+			return Color.magenta;
+		} else {
+			return Color.cyan;
+		}
+	}
+
+	void DrawHUDPointer (GameObject gameObject, PlayerController playerController) {
+		Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (gameObject.transform.position);
 		Rect screenRect = new Rect (0, 0, Screen.width, Screen.height);
 		if (itemScreenPosition.z <= 0 || !screenRect.Contains(new Vector2(itemScreenPosition.x, itemScreenPosition.y))) {
 			float mul = itemScreenPosition.z / Mathf.Abs (itemScreenPosition.z);
@@ -122,12 +135,13 @@ public class PlayerController : NetworkBehaviour {
 			location = location / location.magnitude;
 			location = location * 256 * mul;
 
-			GUI.color = Color.magenta;
+			GUI.color = colorForGameObject(gameObject);
 			GUI.DrawTexture (new Rect (Screen.width / 2 + location.x - pointerSize / 2, Screen.height / 2 - location.y - pointerSize / 2, pointerSize, pointerSize), pointerImage);
-//			GUI.color = Color.green;
-//			GUI.DrawTexture (new Rect (itemScreenPosition.x - 8, Screen.height - itemScreenPosition.y - 8, 16, 16), pointerImage);	
 		}
-		Vector3 heading = transform.position - Camera.main.transform.position;
+	}
+
+	void DrawHUDMinimap (GameObject gameObject, PlayerController playerController) {
+		Vector3 heading = gameObject.transform.position - Camera.main.transform.position;
 		Debug.Log ("Heading: " + heading.ToString ());
 		Vector3 final = Quaternion.Inverse(Camera.main.transform.rotation) * heading;
 
@@ -136,8 +150,29 @@ public class PlayerController : NetworkBehaviour {
 		if (loc.sqrMagnitude >= 120 * 120)
 			loc = loc / loc.magnitude * 120;
 		Debug.Log ("Minimap Location: " + loc.ToString ());
-		GUI.color = Color.magenta;
+		GUI.color = colorForGameObject(gameObject);
 		GUI.DrawTexture (new Rect (128 + loc.x - minimapPointerSize / 2, Screen.height - 128 - loc.y - minimapPointerSize / 2, minimapPointerSize, minimapPointerSize), pointerImage);
+	}
+
+	void OnGUI () {
+		if (!isLocalPlayer)
+			return;
+		if (isDead)
+			return;
+		DrawReticule ();
+		DrawMinimap ();
+
+		foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag ("Player")) {
+			PlayerController otherController = gameObject.GetComponent<PlayerController> ();
+			if (this == otherController)
+				continue;
+			if (otherController.isDead)
+				continue;
+
+			DrawHUDBox (gameObject, otherController);
+			DrawHUDPointer (gameObject, otherController);
+			DrawHUDMinimap (gameObject, otherController);
+		}
 	}
 
 	[Command]

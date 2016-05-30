@@ -120,16 +120,16 @@ public class GameController : NetworkBehaviour {
     var ship = player.Ship;
     if (ship != null) {
       player.Ship.transform.position = spawnPoint.transform.position;
+      player.Ship.transform.rotation = spawnPoint.transform.rotation;
     } else {
-      ship = player.Ship = Instantiate (shipPrefab, spawnPoint.transform.position, Quaternion.identity) as GameObject;
+      ship = player.Ship = Instantiate (shipPrefab, spawnPoint.transform.position, spawnPoint.transform.rotation) as GameObject;
+      NetworkServer.Spawn (ship);
     }
 
     PlayerController playerController = ship.GetComponent<PlayerController> ();
     playerController.OnRespawn ();
     playerController.playerName = player.GetComponent<Player> ().Name;
 
-    ship.transform.LookAt(Vector3.zero);
-    Debug.Log ("Spawn Rotation: " + player.transform.rotation.eulerAngles);
     player.Replace (ship);
   }
 }

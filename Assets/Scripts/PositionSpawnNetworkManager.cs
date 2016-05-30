@@ -2,31 +2,24 @@
 using UnityEngine.Networking;
 using System.Collections;
 
-public class PositionSpawnNetworkManager : NetworkManager {
-  public ArrayList players = new ArrayList();
-
-  public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+public class PositionSpawnNetworkManager : NetworkLobbyManager {
+  public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
   {
-    players.Add (new Player("NPC " + players.Count));
-    players.Add (new Player("NPC " + players.Count));
+    Debug.Log ("OnLobbyServerCreateLobbyPlayer");
+    Debug.Log (lobbyPlayerPrefab);
+    NetworkLobbyPlayer player = Instantiate (lobbyPlayerPrefab, Vector3.zero, Quaternion.identity) as NetworkLobbyPlayer;
 
-    NetworkPlayer player = new NetworkPlayer ("Player " + players.Count);
-    player.Connection = conn;
-    players.Add (player);
-
-    if (players.Count >= 2) {
-      Application.LoadLevel ("arena");
-      ((LevelLoader)GameObject.Find ("LevelLoader").GetComponent<LevelLoader>()).RpcLoadArena();
-    }
+    Debug.Log (player);
+    NetworkPlayer networkPlayer = player.gameObject.GetComponent<NetworkPlayer> ();
+    networkPlayer.Connection = conn;
+    networkPlayer.Name = "Player " + numPlayers;
+    return player.gameObject;
   }
 
-//	public override void OnServerRemovePlayer (NetworkConnection conn, UnityEngine.Networking.PlayerController player)
-//	{
-//		base.OnServerRemovePlayer (conn, player);
-//		foreach (NetworkPlayer networkPlayer in players) {
-//			if (networkPlayer.Connection == conn) {
-//				players.Remove(networkPlayer);
-//			}
-//		}
-//	}
+  public override void OnStopServer () {
+    Debug.Log ("OnStopServer");
+    foreach (GameObject player in GameObject.FindGameObjectsWithTag ("GamePlayer")) {
+      Destroy (player);
+    }
+  }
 }

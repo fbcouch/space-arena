@@ -6,9 +6,9 @@ public class GameController : NetworkBehaviour {
   public GameObject shipPrefab;
   public NetworkLobbyPlayer aiPlayerPrefab;
   public GameObject[] spawnPoints;
-  public int startWait;
-  public int roundWait;
-  public float spawnRadius;
+  public int startWait = 3;
+  public int roundWait = 3;
+  public int minPlayers = 4;
 
   private GameObject[] players;
 
@@ -31,7 +31,7 @@ public class GameController : NetworkBehaviour {
     Debug.Log ("GameController#Start - isServer");
 
     players = GameObject.FindGameObjectsWithTag ("GamePlayer");
-    if (players.Length < 2)
+    while (players.Length < minPlayers)
       createAIPlayer ();
     countdown = 0;
   }
@@ -91,8 +91,8 @@ public class GameController : NetworkBehaviour {
       countdown--;
     }
     roundStarting = false;
-    foreach (GameObject player in players) {
-      Respawn (player.GetComponent<Player> ());
+    for (var i = 0; i < players.Length; i++) {
+      Respawn (players[i].GetComponent<Player> (), spawnPoints[i]);
     }
     roundStarted = true;
   }
@@ -112,26 +112,23 @@ public class GameController : NetworkBehaviour {
     roundStarted = false;
   }
 
-  public void Respawn (Player player) {
+  public void Respawn (Player player, GameObject spawnPoint) {
     if (!isServer)
       return;
 
-    Vector2 spawnLocation = Random.insideUnitCircle * spawnRadius;
-    Debug.Log ("Spawn At: " + spawnLocation);
+    Debug.Log ("Spawn At: " + spawnPoint.transform.position);
     var ship = player.Ship;
     if (ship != null) {
-      Debug.Log ("Move...");
-      player.Ship.transform.position = new Vector3 (spawnLocation.x, 0, spawnLocation.y);
+      player.Ship.transform.position = spawnPoint.transform.position;
     } else {
-      Debug.Log ("Instantiate...");
-      ship = player.Ship = Instantiate (shipPrefab, new Vector3 (spawnLocation.x, 0, spawnLocation.y), Quaternion.identity) as GameObject;
+      ship = player.Ship = Instantiate (shipPrefab, spawnPoint.transform.position, Quaternion.identity) as GameObject;
     }
 
     PlayerController playerController = ship.GetComponent<PlayerController> ();
     playerController.OnRespawn ();
     playerController.playerName = player.GetComponent<Player> ().Name;
 
-    player.transform.LookAt(Vector3.zero);
+    ship.transform.LookAt(Vector3.zero);
     Debug.Log ("Spawn Rotation: " + player.transform.rotation.eulerAngles);
     player.Replace (ship);
   }

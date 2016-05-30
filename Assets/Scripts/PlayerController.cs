@@ -154,7 +154,7 @@ public class PlayerController : NetworkBehaviour {
     style.normal.textColor = Color.white;
     style.alignment = TextAnchor.LowerRight;
     GUI.Label (new Rect (0, Screen.height - 50, Screen.width, 50), "Velocity: " + Mathf.Round(rigidBody.velocity.magnitude) + "m/s", style);
-    GUI.Label (new Rect (0, Screen.height - 64, Screen.width, 50), "Hull: " + Mathf.Round(curHealth / maxHealth * 100.0f) + "%", style);
+    GUI.Label (new Rect (0, Screen.height - 64, Screen.width, 50), "Hull: " + Mathf.Round(100.0f * curHealth / maxHealth) + "%", style);
   }
 
   void DrawHUDBox (GameObject gameObject, PlayerController playerController) {

@@ -26,6 +26,8 @@ public class PlayerController : NetworkBehaviour {
 	private float nextFire = 0.0f;
 	private GameObject target;
 
+	private bool fire2Up = false;
+
 	public Player player;
 
 	[SyncVar]
@@ -79,8 +81,33 @@ public class PlayerController : NetworkBehaviour {
 			CmdDoFire();
 		}
 
+		if (Input.GetButton ("Fire2") && fire2Up) {
+			TargetAhead ();
+			fire2Up = false;
+		} else {
+			fire2Up = true;
+		}
+
 		GameObject throttleUI = GameObject.Find ("UIThrottle");
 		throttleUI.GetComponent<ProgressRadialBehaviour> ().Value = throttle * 50;
+	}
+
+	void TargetAhead () {
+		float minDist = -1;
+		GameObject newTarget = null;
+		foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag ("Player")) {
+			if (gameObject == this.gameObject)
+				continue;
+			Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (gameObject.transform.position);
+			float distance = (gameObject.transform.position - Camera.main.transform.position).sqrMagnitude;
+			if (itemScreenPosition.z >= 0 && new Vector2 (Screen.width / 2 - itemScreenPosition.x, Screen.height / 2 - itemScreenPosition.y).sqrMagnitude <= Mathf.Pow(reticuleImage.width / 2, 2)) {
+				if (newTarget == null || distance < minDist) {
+					newTarget = gameObject;
+					minDist = distance;
+				}
+			}
+		}
+		target = newTarget;
 	}
 
 	void DrawReticule () {

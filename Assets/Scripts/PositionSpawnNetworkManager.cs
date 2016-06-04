@@ -3,6 +3,8 @@ using UnityEngine.Networking;
 using System.Collections;
 
 public class PositionSpawnNetworkManager : NetworkLobbyManager {
+  public UIPlayerSlot[] uiSlots;
+
   public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
   {
     Debug.Log ("OnLobbyServerCreateLobbyPlayer");
@@ -12,7 +14,15 @@ public class PositionSpawnNetworkManager : NetworkLobbyManager {
     Debug.Log (player);
     NetworkPlayer networkPlayer = player.gameObject.GetComponent<NetworkPlayer> ();
     networkPlayer.Connection = conn;
-    networkPlayer.Name = "Player " + numPlayers;
+
+	  if (numPlayers < uiSlots.Length) {
+			Debug.Log ("Num Players: " + numPlayers);
+			Debug.Log (uiSlots [numPlayers]);
+	    uiSlots [numPlayers].player = networkPlayer;
+	    uiSlots [numPlayers].lobbyPlayer = player;
+      networkPlayer.playerNum = numPlayers;
+	  }
+
     return player.gameObject;
   }
 

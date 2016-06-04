@@ -12,7 +12,9 @@ public class SetupManager : MonoBehaviour {
 	public GameObject musicToggle;
 	public GameObject musicPlayer;
 
-	public GameObject networkManagerObject;
+	public NetworkManager networkManager;
+
+  public InputField serverAddressInput;
 
 	void Start () {
 		RunOptions ();
@@ -28,6 +30,11 @@ public class SetupManager : MonoBehaviour {
 		ShowMenu (mainMenu);
 	}
 
+	public void OnMultiplayerClicked () {
+		Debug.Log ("To Multiplayer Menu");
+		ShowMenu (multiplayerSetupMenu);
+	}
+
 	public void OnOptionsMenuClicked () {
 		Debug.Log ("To Options");
 		LoadOptions ();
@@ -37,7 +44,6 @@ public class SetupManager : MonoBehaviour {
 	public void OnQuickStartClicked () {
 		Debug.Log ("Quick Start");
 		mainMenu.GetComponent<Canvas> ().enabled = false;
-		NetworkManager networkManager = networkManagerObject.GetComponent<NetworkManager> ();
 		networkManager.StartHost ();
 		StartCoroutine (AutoReady ());
 	}
@@ -47,6 +53,23 @@ public class SetupManager : MonoBehaviour {
 		NetworkLobbyPlayer gamePlayer = GameObject.FindGameObjectWithTag ("GamePlayer").GetComponent<NetworkLobbyPlayer> ();
 		gamePlayer.SendReadyToBeginMessage ();
 	}
+
+	public void OnHostGameClicked () {
+		networkManager.StartHost ();
+	}
+
+  public void StopHost () {
+    networkManager.StopHost ();
+  }
+
+  public void OnJoinGameClicked () {
+    networkManager.networkAddress = serverAddressInput.text;
+    networkManager.StartClient ();
+  }
+
+  public void StopClient () {
+    networkManager.StopClient ();
+  }
 
 	public void LoadOptions () {
 		Debug.Log ("Load Options");

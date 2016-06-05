@@ -19,10 +19,13 @@ public class UIPlayerSlot : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (player == null || lobbyPlayer == null)
-			return;
-
+    if (player == null || lobbyPlayer == null) {
+      playerReady.interactable = false;
+      return;
+    }
+		
     if (lobbyPlayer.isLocalPlayer) {
+      playerReady.interactable = true;
       lobbyPlayer.readyToBegin = playerReady.isOn;
       if (playerReady.isOn && !wasOn) {
         wasOn = true;
@@ -33,6 +36,8 @@ public class UIPlayerSlot : MonoBehaviour {
         wasOn = false;
         lobbyPlayer.SendNotReadyToBeginMessage ();
       }
+    } else {
+      playerReady.interactable = false;
     }
 
 		playerName.text = player.Name;

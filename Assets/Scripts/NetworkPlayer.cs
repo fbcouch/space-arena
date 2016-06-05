@@ -29,7 +29,10 @@ public class NetworkPlayer : Player {
   }
 
   public void Update () {
-    UIPlayerSlot uiPlayerSlot = GameObject.Find ("PlayerRow (" + playerNum + ")").GetComponent <UIPlayerSlot> ();
+    GameObject uiGameObject = GameObject.Find ("PlayerRow (" + playerNum + ")");
+    if (uiGameObject == null)
+      return;
+    UIPlayerSlot uiPlayerSlot = uiGameObject.GetComponent <UIPlayerSlot> ();
     if (uiPlayerSlot == null)
       return;
     uiPlayerSlot.player = this;

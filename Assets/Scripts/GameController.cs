@@ -29,9 +29,6 @@ public class GameController : NetworkBehaviour {
 
     Debug.Log ("GameController#Start - isServer");
 
-    players = GameObject.FindGameObjectsWithTag ("GamePlayer");
-    while (players.Length < minPlayers)
-      createAIPlayer ();
     countdown = 0;
   }
 
@@ -93,6 +90,10 @@ public class GameController : NetworkBehaviour {
       countdown--;
     }
     roundStarting = false;
+    players = GameObject.FindGameObjectsWithTag ("GamePlayer");
+    while (players.Length < minPlayers)
+      createAIPlayer ();
+
     for (var i = 0; i < players.Length; i++) {
       Debug.Log (players [i]);
       Respawn (players[i].GetComponent<Player> (), spawnPoints[i]);

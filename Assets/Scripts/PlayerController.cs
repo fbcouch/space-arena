@@ -24,9 +24,10 @@ public class PlayerController : NetworkBehaviour {
   public Vector3 angularThrust;
   public Vector3 maxAngularSpeed;
   public float thrust;
-  public float throttle;
   public float maxSpeed;
+  [SyncVar]
   public int curHealth;
+  [SyncVar]
   public int maxHealth;
   public float shotSpeed;
   public float fireRate;
@@ -55,8 +56,10 @@ public class PlayerController : NetworkBehaviour {
     if (player == null) {
       foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag("GamePlayer")) {
         Player gamePlayer = gameObject.GetComponent<Player> ();
-        if (gamePlayer != null && gamePlayer.playerNum == playerNum)
+        if (gamePlayer != null && gamePlayer.playerNum == playerNum) {
           player = gamePlayer;
+          player.Ship = this.gameObject;
+        }
       }
     }
 
@@ -73,27 +76,19 @@ public class PlayerController : NetworkBehaviour {
   void FixedUpdate () {
     if (isDead) return;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
-    if (!player.isLocalPlayer) {
-      return;
-    }
-
-    float roll = Input.GetAxis ("Horizontal");
-    float pitch = Input.GetAxis ("Vertical");
-    float yaw = Input.GetAxis ("Rudder");
-    throttle = (Input.GetAxis ("Throttle") + 1) / 2;
 
     // Clamp speed
-    float targetSpeed = throttle * maxSpeed;
+    float targetSpeed = player.throttle * maxSpeed;
     if (rigidBody.velocity.sqrMagnitude > Mathf.Pow(targetSpeed, 2)) {
       rigidBody.AddForce(rigidBody.velocity / rigidBody.velocity.magnitude * -1 * thrust);
     } else {
-      rigidBody.AddForce(transform.forward * thrust * throttle);
+      rigidBody.AddForce(transform.forward * thrust * player.throttle);
     }
     rigidBody.velocity = Vector3.ClampMagnitude(rigidBody.velocity, maxSpeed);
-    if (rigidBody.velocity.sqrMagnitude < 1 && throttle < 0.01f)
+    if (rigidBody.velocity.sqrMagnitude < 1 && player.throttle < 0.01f)
       rigidBody.velocity = Vector3.zero;
 
-    rigidBody.AddTorque (rigidBody.rotation * new Vector3 (pitch * angularThrust.x, -yaw * angularThrust.y, -roll * angularThrust.z));
+    rigidBody.AddTorque (rigidBody.rotation * new Vector3 (player.pitch * angularThrust.x, -player.yaw * angularThrust.y, -player.roll * angularThrust.z));
     // Clamp rotation
     Vector3 rotatedSpeeds = Quaternion.Inverse(transform.rotation) * rigidBody.angularVelocity;
     if (rotatedSpeeds.x > maxAngularSpeed.x)
@@ -118,13 +113,13 @@ public class PlayerController : NetworkBehaviour {
       return;
     }
 
-    if (Input.GetButton ("Fire1") && Time.time > nextFire) {
+    if (player.fire1 && Time.time > nextFire) {
       Debug.Log ("Fire!!!");
       nextFire = Time.time + fireRate;
       player.FireWeapons();
     }
 
-    if (Input.GetButton ("Fire2") && fire2Up) {
+    if (player.fire2 && fire2Up) {
       TargetAhead ();
       fire2Up = false;
     } else {
@@ -132,7 +127,7 @@ public class PlayerController : NetworkBehaviour {
     }
 
     GameObject throttleUI = GameObject.Find ("UIThrottle");
-    throttleUI.GetComponent<ProgressRadialBehaviour> ().Value = throttle * 100;
+    throttleUI.GetComponent<ProgressRadialBehaviour> ().Value = player.throttle * 100;
   }
 
   void TargetAhead () {

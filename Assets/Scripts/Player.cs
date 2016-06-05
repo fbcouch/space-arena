@@ -8,6 +8,18 @@ public class Player : NetworkBehaviour {
   public string name;
   [SyncVar]
   public int playerNum = -1;
+  [SyncVar]
+  public float throttle = 0;
+  [SyncVar]
+  public float pitch = 0;
+  [SyncVar]
+  public float roll = 0;
+  [SyncVar]
+  public float yaw = 0;
+  [SyncVar]
+  public bool fire1 = false;
+  [SyncVar]
+  public bool fire2 = false;
 
   public virtual void Replace (GameObject ship) {
     if (ship != Ship) {

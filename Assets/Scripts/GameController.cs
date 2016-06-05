@@ -4,14 +4,13 @@ using System.Collections;
 
 public class GameController : NetworkBehaviour {
   public GameObject shipPrefab;
-  public NetworkLobbyPlayer aiPlayerPrefab;
+  public Player aiPlayerPrefab;
   public GameObject[] spawnPoints;
   public int startWait = 3;
   public int roundWait = 3;
   public int minPlayers = 4;
 
   private GameObject[] players;
-
 
   [SyncVar]
   public bool gameStarted, gameStarting;
@@ -37,8 +36,9 @@ public class GameController : NetworkBehaviour {
   }
 
   void createAIPlayer () {
-    NetworkLobbyPlayer lobbyPlayer = Instantiate (aiPlayerPrefab, Vector3.zero, Quaternion.identity) as NetworkLobbyPlayer;
-    var player = lobbyPlayer.gameObject.GetComponent<Player> ();
+    Player player = Instantiate (aiPlayerPrefab, Vector3.zero, Quaternion.identity) as Player;
+    Debug.Log (player);
+    Debug.Log (players);
     player.Name = "NPC " + players.Length;
     players = GameObject.FindGameObjectsWithTag ("GamePlayer");
   }
@@ -92,6 +92,7 @@ public class GameController : NetworkBehaviour {
     }
     roundStarting = false;
     for (var i = 0; i < players.Length; i++) {
+      Debug.Log (players [i]);
       Respawn (players[i].GetComponent<Player> (), spawnPoints[i]);
     }
     roundStarted = true;

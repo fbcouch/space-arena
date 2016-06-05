@@ -12,7 +12,7 @@ public class SetupManager : MonoBehaviour {
 	public GameObject musicToggle;
 	public GameObject musicPlayer;
 
-	public NetworkManager networkManager;
+	public LobbyManager networkManager;
 
   public InputField serverAddressInput;
 
@@ -50,8 +50,7 @@ public class SetupManager : MonoBehaviour {
 
 	IEnumerator AutoReady () {
 		yield return new WaitForSeconds (1);
-		NetworkLobbyPlayer gamePlayer = GameObject.FindGameObjectWithTag ("GamePlayer").GetComponent<NetworkLobbyPlayer> ();
-		gamePlayer.SendReadyToBeginMessage ();
+    networkManager.lobbySlots [0].SendReadyToBeginMessage ();
 	}
 
 	public void OnHostGameClicked () {

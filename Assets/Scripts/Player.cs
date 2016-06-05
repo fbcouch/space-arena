@@ -7,10 +7,6 @@ public class Player : NetworkBehaviour {
   [SyncVar]
   public string name;
 
-  public Player(string playerName) {
-    name = playerName;
-  }
-
   public virtual void Replace (GameObject ship) {
     if (ship != Ship) {
       NetworkServer.Spawn (ship);

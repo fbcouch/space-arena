@@ -23,7 +23,7 @@ public class LocalPlayerBehaviour : MonoBehaviour {
 	PlayerController FindPlayerController () {
 		foreach (GameObject playerObj in GameObject.FindGameObjectsWithTag ("Player")) {
 			PlayerController playerController = (PlayerController)playerObj.GetComponent<PlayerController>();
-			if (playerController && playerController.isLocalPlayer) {
+      if (playerController && playerController.player && playerController.player.isLocalPlayer) {
 				return playerController;
 			}
 		}

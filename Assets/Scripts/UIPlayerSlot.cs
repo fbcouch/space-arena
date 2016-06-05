@@ -4,8 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 
 public class UIPlayerSlot : MonoBehaviour {
-	public NetworkPlayer player;
-	public NetworkLobbyPlayer lobbyPlayer;
+	public LobbyPlayer lobbyPlayer;
 	public Text playerName;
 	public Toggle playerReady;
 
@@ -19,7 +18,7 @@ public class UIPlayerSlot : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-    if (player == null || lobbyPlayer == null) {
+    if (lobbyPlayer == null) {
       playerReady.interactable = false;
       return;
     }
@@ -40,7 +39,7 @@ public class UIPlayerSlot : MonoBehaviour {
       playerReady.interactable = false;
     }
 
-		playerName.text = player.Name;
+		playerName.text = lobbyPlayer.name;
 		playerReady.isOn = lobbyPlayer.readyToBegin;
 	}
 }

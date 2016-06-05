@@ -50,7 +50,7 @@ public class PlayerController : NetworkBehaviour {
   bool wasDead = true;
 
   void Start () {
-    if (!isLocalPlayer) {
+    if (!player.isLocalPlayer) {
       return;
     }
 
@@ -63,7 +63,7 @@ public class PlayerController : NetworkBehaviour {
   void FixedUpdate () {
     if (isDead) return;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
-    if (!isLocalPlayer) {
+    if (!player.isLocalPlayer) {
       return;
     }
 
@@ -99,12 +99,12 @@ public class PlayerController : NetworkBehaviour {
   void Update () {
     if (isDead != wasDead) {
       Debug.Log ("Dead status changed");
-      setRendererEnabled (!isLocalPlayer && !isDead);
+      setRendererEnabled (!player.isLocalPlayer && !isDead);
       setColliderEnabled (!isDead);
       wasDead = isDead;
     }
 
-    if (!isLocalPlayer) {
+    if (!player.isLocalPlayer) {
       return;
     }
 
@@ -247,7 +247,7 @@ public class PlayerController : NetworkBehaviour {
   }
 
   void OnGUI () {
-    if (!isLocalPlayer)
+    if (!player.isLocalPlayer)
       return;
     if (isDead)
       return;

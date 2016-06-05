@@ -11,6 +11,7 @@ public class NetworkPlayer : Player {
 		playerController.player = this;
 		playerController.isDead = false;
 		//NetworkServer.ReplacePlayerForConnection (connection, ship, 0);
+    ship.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
 	}
 
 	public NetworkConnection Connection {
@@ -41,19 +42,19 @@ public class NetworkPlayer : Player {
 
     if (Input.GetAxis ("Horizontal") != roll) {
       roll = Input.GetAxis ("Horizontal");
-      CmdSetInput ("roll", roll);
+      //CmdSetInput ("roll", roll);
     }
     if (Input.GetAxis ("Vertical") != roll) {
       pitch = Input.GetAxis ("Vertical");
-      CmdSetInput ("pitch", pitch);
+      //CmdSetInput ("pitch", pitch);
     }
     if (Input.GetAxis ("Rudder") != roll) {
       yaw = Input.GetAxis ("Rudder");
-      CmdSetInput ("yaw", yaw);
+      //CmdSetInput ("yaw", yaw);
     }
     if (Input.GetAxis ("Throttle") != throttle) {
       throttle = (Input.GetAxis ("Throttle") + 1) / 2;
-      CmdSetInput ("throttle", throttle);
+      //CmdSetInput ("throttle", throttle);
     }
     fire1 = Input.GetButton ("Fire1");
     fire2 = Input.GetButton ("Fire2");

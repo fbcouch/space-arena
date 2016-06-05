@@ -8,13 +8,13 @@ public class Player : NetworkBehaviour {
   public string name;
   [SyncVar]
   public int playerNum = -1;
-  [SyncVar]
+  //[SyncVar]
   public float throttle = 0;
-  [SyncVar]
+  //[SyncVar]
   public float pitch = 0;
-  [SyncVar]
+  //[SyncVar]
   public float roll = 0;
-  [SyncVar]
+  //[SyncVar]
   public float yaw = 0;
   [SyncVar]
   public bool fire1 = false;

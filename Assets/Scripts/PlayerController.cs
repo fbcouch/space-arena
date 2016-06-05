@@ -77,6 +77,9 @@ public class PlayerController : NetworkBehaviour {
     if (isDead) return;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
 
+    if (!player.isLocalPlayer)
+      return;
+
     // Clamp speed
     float targetSpeed = player.throttle * maxSpeed;
     if (rigidBody.velocity.sqrMagnitude > Mathf.Pow(targetSpeed, 2)) {

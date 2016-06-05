@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 public class SetupManager : MonoBehaviour {
 	public GameObject mainMenu;
@@ -68,6 +69,7 @@ public class SetupManager : MonoBehaviour {
 
   public void StopClient () {
     networkManager.StopClient ();
+    SceneManager.LoadScene ("setup");
   }
 
 	public void LoadOptions () {

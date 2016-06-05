@@ -20,6 +20,8 @@ public class Player : NetworkBehaviour {
   public bool fire1 = false;
   [SyncVar]
   public bool fire2 = false;
+  [SyncVar]
+  public int averagePing = 0;
 
   public virtual void Replace (GameObject ship) {
     if (ship != Ship) {

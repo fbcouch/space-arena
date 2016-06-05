@@ -21,4 +21,17 @@ public class NetworkPlayer : Player {
 			connection = value;
 		}
 	}
+
+  public override void FireWeapons () {
+    Debug.Log ("Fire Weapons!");
+    if (isLocalPlayer)
+      CmdFireWeapons ();
+  }
+
+  [Command]
+  public void CmdFireWeapons () {
+    PlayerController playerController = (PlayerController)ship.GetComponent<PlayerController> ();
+    if (playerController != null)
+      playerController.FireWeapons ();
+  }
 }

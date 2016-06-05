@@ -6,6 +6,8 @@ public class Player : NetworkBehaviour {
   public GameObject ship;
   [SyncVar]
   public string name;
+  [SyncVar]
+  public int playerNum = -1;
 
   public virtual void Replace (GameObject ship) {
     if (ship != Ship) {
@@ -33,5 +35,9 @@ public class Player : NetworkBehaviour {
     set {
       name = value;
     }
+  }
+
+  public virtual void FireWeapons() {
+    Debug.Log ("Fire Weapons?");
   }
 }

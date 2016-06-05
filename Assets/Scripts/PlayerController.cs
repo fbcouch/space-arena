@@ -46,10 +46,20 @@ public class PlayerController : NetworkBehaviour {
   public bool isDead = true;
   [SyncVar]
   public string playerName;
+  [SyncVar]
+  public int playerNum = -1;
 
   bool wasDead = true;
 
   void Start () {
+    if (player == null) {
+      foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag("GamePlayer")) {
+        Player gamePlayer = gameObject.GetComponent<Player> ();
+        if (gamePlayer != null && gamePlayer.playerNum == playerNum)
+          player = gamePlayer;
+      }
+    }
+
     if (!player.isLocalPlayer) {
       return;
     }
@@ -109,8 +119,9 @@ public class PlayerController : NetworkBehaviour {
     }
 
     if (Input.GetButton ("Fire1") && Time.time > nextFire) {
+      Debug.Log ("Fire!!!");
       nextFire = Time.time + fireRate;
-      CmdDoFire();
+      player.FireWeapons();
     }
 
     if (Input.GetButton ("Fire2") && fire2Up) {
@@ -269,9 +280,8 @@ public class PlayerController : NetworkBehaviour {
         DrawLeadIndicator (gameObject, otherController);
     }
   }
-
-  [Command]
-  void CmdDoFire () {
+ 
+  public void FireWeapons () {
     if (isDead) return;
 
     foreach (Transform shotSpawn in shotSpawns) {

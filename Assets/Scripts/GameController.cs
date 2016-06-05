@@ -40,7 +40,9 @@ public class GameController : NetworkBehaviour {
     Debug.Log (player);
     Debug.Log (players);
     player.Name = "NPC " + players.Length;
+    player.playerNum = players.Length;
     players = GameObject.FindGameObjectsWithTag ("GamePlayer");
+    NetworkServer.Spawn (player.gameObject);
   }
 
   // Update is called once per frame
@@ -124,6 +126,7 @@ public class GameController : NetworkBehaviour {
       player.Ship.transform.rotation = spawnPoint.transform.rotation;
     } else {
       ship = player.Ship = Instantiate (shipPrefab, spawnPoint.transform.position, spawnPoint.transform.rotation) as GameObject;
+      ship.GetComponent<PlayerController> ().playerNum = player.playerNum;
       NetworkServer.Spawn (ship);
     }
 

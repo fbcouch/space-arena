@@ -53,6 +53,7 @@ public class LobbyManager : NetworkLobbyManager {
     NetworkPlayer networkPlayer = gamePlayer.GetComponent<NetworkPlayer> ();
     LobbyPlayer lPlayer = lobbyPlayer.GetComponent<LobbyPlayer> ();
     networkPlayer.name = lPlayer.name;
+    networkPlayer.playerNum = lPlayer.playerNum;
 
     return true;
   }

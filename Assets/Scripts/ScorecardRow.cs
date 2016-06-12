@@ -10,6 +10,9 @@ public class ScorecardRow : MonoBehaviour {
   public Text deathsText;
   public Text pingText;
 
+  public Color deadColor = new Color(1f, 1f, 1f, 0.5f);
+  public Color aliveColor = Color.white;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -22,7 +25,7 @@ public class ScorecardRow : MonoBehaviour {
 
     nameText.text = player.name;
     if (player.isLocalPlayer)
-      pingText.text = "" + Network.GetAveragePing(Network.player);
+      pingText.text = "" + player.averagePing;
 
     if (player.ship == null)
       return;
@@ -32,5 +35,17 @@ public class ScorecardRow : MonoBehaviour {
     
     killsText.text = "" + playerController.kills;
     deathsText.text = "" + playerController.deaths;
+
+    if (playerController.isDead) {
+      nameText.color = deadColor;
+      killsText.color = deadColor;
+      deathsText.color = deadColor;
+      pingText.color = deadColor;
+    } else {
+      nameText.color = aliveColor;
+      killsText.color = aliveColor;
+      deathsText.color = aliveColor;
+      pingText.color = aliveColor;
+    }
 	}
 }

@@ -22,6 +22,8 @@ public class Player : NetworkBehaviour {
   public bool fire2 = false;
   [SyncVar]
   public int averagePing = 0;
+  [SyncVar]
+  public string team;
 
   public virtual void Replace (GameObject ship) {
     if (ship != Ship) {

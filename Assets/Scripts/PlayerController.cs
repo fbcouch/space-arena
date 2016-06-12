@@ -63,7 +63,7 @@ public class PlayerController : NetworkBehaviour {
       }
     }
 
-    if (!player.isLocalPlayer) {
+    if (!(player && player.isLocalPlayer)) {
       return;
     }
 
@@ -77,7 +77,7 @@ public class PlayerController : NetworkBehaviour {
     if (isDead) return;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
 
-    if (!player.isLocalPlayer)
+    if (!(player && player.isLocalPlayer))
       return;
 
     // Clamp speed
@@ -107,12 +107,12 @@ public class PlayerController : NetworkBehaviour {
   void Update () {
     if (isDead != wasDead) {
       Debug.Log ("Dead status changed");
-      setRendererEnabled (!player.isLocalPlayer && !isDead);
+      setRendererEnabled (!(player && player.isLocalPlayer) && !isDead);
       setColliderEnabled (!isDead);
       wasDead = isDead;
     }
 
-    if (!player.isLocalPlayer) {
+    if (!(player && player.isLocalPlayer)) {
       return;
     }
 
@@ -243,7 +243,7 @@ public class PlayerController : NetworkBehaviour {
       float posX = itemScreenPosition.x - leadTargetSize / 2;
       float posY = Screen.height - itemScreenPosition.y - leadTargetSize / 2;
       GUIStyle style = new GUIStyle ();
-      if (distance < shotSpeed * 2) {
+      if (distance < shotSpeed) {
         GUI.color = style.normal.textColor = Color.white;
       } else {
         GUI.color = style.normal.textColor = new Color(255f, 255f, 255f, 0.75f);
@@ -256,7 +256,7 @@ public class PlayerController : NetworkBehaviour {
   }
 
   void OnGUI () {
-    if (!player.isLocalPlayer)
+    if (!(player && player.isLocalPlayer))
       return;
     if (isDead)
       return;

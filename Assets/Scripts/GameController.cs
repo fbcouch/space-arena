@@ -96,7 +96,13 @@ public class GameController : NetworkBehaviour {
 
     for (var i = 0; i < players.Length; i++) {
       Debug.Log (players [i]);
-      Respawn (players[i].GetComponent<Player> (), spawnPoints[i]);
+      Player playerComponent = players [i].GetComponent<Player> ();
+      Respawn (playerComponent, spawnPoints[i]);
+      if (i < players.Length / 2) {
+        playerComponent.team = "blue";
+      } else {
+        playerComponent.team = "red";
+      }
     }
     roundStarted = true;
   }

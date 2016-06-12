@@ -36,6 +36,12 @@ public class NetworkPlayer : Player {
       playerController.FireWeapons ();
   }
 
+  public void Start () {
+    if (!isLocalPlayer)
+      return;
+    StartCoroutine (SendPing ());
+  }
+
   public void FixedUpdate () {
     if (!isLocalPlayer)
       return;
@@ -60,6 +66,18 @@ public class NetworkPlayer : Player {
     fire2 = Input.GetButton ("Fire2");
   }
 
+  IEnumerator SendPing () {
+    while (true) {
+      CmdSetPing (Network.GetAveragePing (Network.player));
+      yield return new WaitForSeconds (1);
+    }
+  }
+
+  [Command]
+  public void CmdSetPing (int ping) {
+    averagePing = ping;
+  }
+
   [Command]
   public void CmdSetInput(string name, float value) {
     switch (name) {
@@ -79,5 +97,10 @@ public class NetworkPlayer : Player {
       Debug.Log ("Unknown Input: " + name);
       break;
     }
+  }
+
+  [Command]
+  public void CmdSetTeam(string name) {
+    Debug.Log ("Set team to " + name);
   }
 }

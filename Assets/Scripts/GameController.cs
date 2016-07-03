@@ -8,7 +8,7 @@ public class GameController : NetworkBehaviour {
   public GameObject[] spawnPoints;
   public int startWait = 3;
   public int roundWait = 3;
-  public int minPlayers = 4;
+  public int minPlayers = 2;
 
   private GameObject[] players;
 

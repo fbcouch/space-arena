@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.Networking;
 
 public class NetworkPlayer : Player {
+  float lastThrottle;
 	NetworkConnection connection;
 
 	public override void Replace (GameObject ship) {
@@ -48,20 +49,24 @@ public class NetworkPlayer : Player {
 
     if (Input.GetAxis ("Horizontal") != roll) {
       roll = Input.GetAxis ("Horizontal");
-      //CmdSetInput ("roll", roll);
     }
     if (Input.GetAxis ("Vertical") != roll) {
       pitch = Input.GetAxis ("Vertical");
-      //CmdSetInput ("pitch", pitch);
     }
     if (Input.GetAxis ("Rudder") != roll) {
       yaw = Input.GetAxis ("Rudder");
-      //CmdSetInput ("yaw", yaw);
     }
-    if (Input.GetAxis ("Throttle") != throttle) {
-      throttle = (Input.GetAxis ("Throttle") + 1) / 2;
-      //CmdSetInput ("throttle", throttle);
+    if (Input.GetAxis ("Throttle") != lastThrottle) {
+      lastThrottle = throttle = (Input.GetAxis ("Throttle") + 1) / 2;
     }
+    if (Input.GetAxis ("ThrottleKey") > 0.1) {
+      throttle += 0.01f;
+    }
+    if (Input.GetAxis ("ThrottleKey") < -0.1) {
+      throttle -= 0.01f;
+    }
+    throttle = Mathf.Clamp (throttle, 0, 1);
+
     fire1 = Input.GetButton ("Fire1");
     fire2 = Input.GetButton ("Fire2");
   }

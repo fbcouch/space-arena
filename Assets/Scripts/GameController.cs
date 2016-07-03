@@ -138,7 +138,7 @@ public class GameController : NetworkBehaviour {
     }
 
     PlayerController playerController = ship.GetComponent<PlayerController> ();
-    playerController.OnRespawn ();
+    playerController.OnRespawn (spawnPoint);
     playerController.playerName = player.GetComponent<Player> ().Name;
 
     player.Replace (ship);

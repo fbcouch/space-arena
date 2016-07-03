@@ -26,11 +26,24 @@ public class PlayerController : NetworkBehaviour {
   public float thrust;
   public float maxSpeed;
   [SyncVar]
-  public int curHealth;
+  public int curHealth = 20;
   [SyncVar]
-  public int maxHealth;
+  public int maxHealth = 20;
+  [SyncVar]
+  public int maxShield = 10;
+  [SyncVar]
+  public int curShield = 10;
+  [SyncVar]
+  public int maxAmmo = 8;
+  [SyncVar]
+  public int curAmmo = 8;
   public float shotSpeed;
   public float fireRate;
+  public float shieldRate = 1;
+  public float ammoRate = 0.5f;
+
+  private float nextShield = 0.0f;
+  private float nextAmmo = 0.0f;
 
   private float nextFire = 0.0f;
   private GameObject target;
@@ -52,6 +65,11 @@ public class PlayerController : NetworkBehaviour {
 
   bool wasDead = true;
 
+  private UIPercentPills throttlePills;
+  private UIPercentPills weaponPills;
+  private UIPercentPills hullPills;
+  private UIPercentPills shieldPills;
+
   void Start () {
     if (player == null) {
       foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag("GamePlayer")) {
@@ -68,6 +86,10 @@ public class PlayerController : NetworkBehaviour {
     }
 
     AttachCamera ();
+    throttlePills = GameObject.Find ("ThrottlePills").GetComponent<UIPercentPills> ();
+    weaponPills = GameObject.Find ("WeaponPills").GetComponent<UIPercentPills> ();
+    hullPills = GameObject.Find ("HullPills").GetComponent<UIPercentPills> ();
+    shieldPills = GameObject.Find ("ShieldPills").GetComponent<UIPercentPills> ();
   }
 
   private Vector3 dampVelocity = Vector3.zero;
@@ -112,14 +134,20 @@ public class PlayerController : NetworkBehaviour {
       wasDead = isDead;
     }
 
+    if (Time.time > nextShield) {
+      curShield = Mathf.Clamp (curShield + 1, 0, maxShield);
+      nextShield = Time.time + shieldRate;
+    }
+
     if (!(player && player.isLocalPlayer)) {
       return;
     }
 
-    if (player.fire1 && Time.time > nextFire) {
+    if (player.fire1 && Time.time > nextFire && curAmmo >= shotSpawns.Length) {
       Debug.Log ("Fire!!!");
       nextFire = Time.time + fireRate;
       player.FireWeapons();
+      curAmmo -= shotSpawns.Length;
     }
 
     if (player.fire2 && fire2Up) {
@@ -129,8 +157,24 @@ public class PlayerController : NetworkBehaviour {
       fire2Up = true;
     }
 
+    if (Time.time > nextAmmo) {
+      curAmmo = Mathf.Clamp (curAmmo + 1, 0, maxAmmo);
+      nextAmmo = Time.time + ammoRate;
+    }
+
     GameObject throttleUI = GameObject.Find ("UIThrottle");
     throttleUI.GetComponent<ProgressRadialBehaviour> ().Value = player.throttle * 100;
+    throttlePills.max = 1;
+    throttlePills.current = player.throttle;
+
+    hullPills.max = maxHealth;
+    hullPills.current = curHealth;
+
+    weaponPills.max = maxAmmo;
+    weaponPills.current = curAmmo;
+
+    shieldPills.max = maxShield;
+    shieldPills.current = curShield;
   }
 
   void TargetAhead () {
@@ -305,7 +349,7 @@ public class PlayerController : NetworkBehaviour {
     }
   }
 
-  public void OnRespawn () {
+  public void OnRespawn (GameObject spawn) {
     setRendererEnabled (true);
     setColliderEnabled (true);
     isDead = false;
@@ -314,13 +358,28 @@ public class PlayerController : NetworkBehaviour {
     rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, 0);
 
     rigidBody.angularVelocity = rigidBody.rotation * new Vector3 (0, 0, 0);
+    RpcOnRespawn (spawn.transform.position, spawn.transform.rotation);
+  }
+
+  [ClientRpc]
+  public void RpcOnRespawn(Vector3 position, Quaternion rotation) {
+    transform.position = position;
+    transform.rotation = rotation;
   }
 
   public void TakeDamage (int amount, GameObject shooter) {
     if (isDead)
       return;
-    curHealth -= amount;
-    Debug.Log ("Took " + amount + " damage. Current Health: " + curHealth);
+    if (curShield > 0) {
+      curShield -= amount;
+      if (curShield < 0) {
+        curHealth += curShield;
+        curShield = 0;
+      }
+    } else {
+      curHealth -= amount;
+    }
+    Debug.Log ("Took " + amount + " damage. Current Health: " + curHealth + ", Current Shield: " + curShield);
     if (curHealth <= 0) {
       GetComponent<Exploder>().Explode();
 //			NetworkServer.Destroy (this.gameObject);

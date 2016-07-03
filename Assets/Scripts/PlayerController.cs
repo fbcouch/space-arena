@@ -162,8 +162,6 @@ public class PlayerController : NetworkBehaviour {
       nextAmmo = Time.time + ammoRate;
     }
 
-    GameObject throttleUI = GameObject.Find ("UIThrottle");
-    throttleUI.GetComponent<ProgressRadialBehaviour> ().Value = player.throttle * 100;
     throttlePills.max = 1;
     throttlePills.current = player.throttle;
 

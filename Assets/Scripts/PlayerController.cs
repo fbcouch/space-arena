@@ -8,6 +8,7 @@ public class PlayerController : NetworkBehaviour {
   public GameObject shot;
   public Transform[] shotSpawns;
   public Camera camera;
+  public GameObject shooter;
 
   public Texture2D boxImage;
   public Texture2D leadTargetImage;
@@ -326,7 +327,7 @@ public class PlayerController : NetworkBehaviour {
 
     foreach (Transform shotSpawn in shotSpawns) {
       GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
-      missile.GetComponent<Bolt> ().shooter = gameObject;
+      missile.GetComponent<Bolt> ().shooter = shooter.gameObject;
       Rigidbody rigidBody = missile.GetComponent<Rigidbody> ();
 
       rigidBody.velocity = transform.forward * shotSpeed;
@@ -383,7 +384,7 @@ public class PlayerController : NetworkBehaviour {
 //			NetworkServer.Destroy (this.gameObject);
       isDead = true;
       deaths += 1;
-      ((PlayerController)shooter.GetComponent<PlayerController> ()).kills += 1;
+      ((PlayerController)shooter.transform.parent.gameObject.GetComponent<PlayerController> ()).kills += 1;
       setRendererEnabled (false);
       setColliderEnabled (false);
     }

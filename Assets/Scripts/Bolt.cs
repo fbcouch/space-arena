@@ -10,13 +10,20 @@ public class Bolt : NetworkBehaviour {
     if (!isServer)
       return;
 
+    Debug.Log ("Other: " + other.gameObject + " Shooter: " + shooter);
+
     if (other.gameObject == shooter)
       return;
 
     GetComponent<Exploder>().Explode();
     NetworkServer.Destroy (gameObject);
-    if (other.gameObject.tag == "Player") {
-      PlayerController player = other.gameObject.GetComponent<PlayerController>();
+
+    if (other.gameObject.transform.parent == null)
+      return;
+
+    GameObject otherPlayerObj = other.gameObject.transform.parent.gameObject;
+    if (otherPlayerObj.tag == "Player") {
+      PlayerController player = otherPlayerObj.GetComponent<PlayerController>();
       if (player.isDead) return;
       player.TakeDamage(damage, shooter);
     }

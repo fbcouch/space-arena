@@ -98,6 +98,7 @@ public class PlayerController : NetworkBehaviour {
 
   void FixedUpdate () {
     if (isDead) return;
+    if (!GameController.instance.IsGameRunning ()) return;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
 
     if (!(player && player.isLocalPlayer))

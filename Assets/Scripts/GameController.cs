@@ -5,12 +5,15 @@ using System.Collections;
 public class GameController : NetworkBehaviour {
   public GameObject shipPrefab;
   public Player aiPlayerPrefab;
-  public GameObject[] spawnPoints;
+  public GameObject[] blueSpawns;
+  public GameObject[] redSpawns;
   public int startWait = 3;
   public int roundWait = 3;
   public int minPlayers = 2;
 
   private GameObject[] players;
+
+  public static GameController instance;
 
   [SyncVar]
   public bool gameStarted, gameStarting;
@@ -23,6 +26,7 @@ public class GameController : NetworkBehaviour {
   // Use this for initialization
   void Start () {
     Debug.Log ("GameController#Start");
+    instance = this;
     if (!isServer) {
       return;
     }
@@ -78,6 +82,11 @@ public class GameController : NetworkBehaviour {
       countdown--;
     }
     gameStarting = false;
+    players = GameObject.FindGameObjectsWithTag ("GamePlayer");
+    while (players.Length < minPlayers)
+      createAIPlayer ();
+
+    RespawnAll ();
     gameStarted = true;
   }
 
@@ -90,20 +99,7 @@ public class GameController : NetworkBehaviour {
       countdown--;
     }
     roundStarting = false;
-    players = GameObject.FindGameObjectsWithTag ("GamePlayer");
-    while (players.Length < minPlayers)
-      createAIPlayer ();
 
-    for (var i = 0; i < players.Length; i++) {
-      Debug.Log (players [i]);
-      Player playerComponent = players [i].GetComponent<Player> ();
-      Respawn (playerComponent, spawnPoints[i]);
-      if (i < players.Length / 2) {
-        playerComponent.team = "blue";
-      } else {
-        playerComponent.team = "red";
-      }
-    }
     roundStarted = true;
   }
 
@@ -119,7 +115,29 @@ public class GameController : NetworkBehaviour {
     foreach (GameObject player in GameObject.FindGameObjectsWithTag ("Player")) {
       ((PlayerController)player.GetComponent<PlayerController>()).isDead = true;
     }
+    RespawnAll ();
     roundStarted = false;
+  }
+
+  public void RespawnAll () {
+    int b = 0, r = 0;
+    GameObject spawn;
+    for (var i = 0; i < players.Length; i++) {
+      Debug.Log (players [i]);
+      Player playerComponent = players [i].GetComponent<Player> ();
+
+      if (i < players.Length / 2) {
+        playerComponent.team = "blue";
+        spawn = blueSpawns [b];
+        b++;
+      } else {
+        playerComponent.team = "red";
+        spawn = redSpawns [r];
+        r++;
+      }
+
+      Respawn (playerComponent, spawn);
+    }
   }
 
   public void Respawn (Player player, GameObject spawnPoint) {
@@ -142,5 +160,9 @@ public class GameController : NetworkBehaviour {
     playerController.playerName = player.GetComponent<Player> ().Name;
 
     player.Replace (ship);
+  }
+
+  public bool IsGameRunning () {
+    return gameStarted && roundStarted;
   }
 }

@@ -24,8 +24,8 @@ public class GameController : NetworkBehaviour {
   public int countdown;
   [SyncVar]
   public float timeRemaining;
-
-
+  [SyncVar]
+  public int blueScore = 0, redScore = 0;
 
   // Use this for initialization
   void Start () {
@@ -64,13 +64,7 @@ public class GameController : NetworkBehaviour {
     if (gameStarted) {
       if (roundStarted) {
         timeRemaining -= Time.deltaTime;
-        int playersRemaining = 0;
-        foreach (GameObject playerObj in GameObject.FindGameObjectsWithTag ("Player")) {
-          PlayerController playerController = (PlayerController)playerObj.GetComponent<PlayerController>();
-          if (playerController && !playerController.isDead)
-            playersRemaining += 1;
-        }
-        if (playersRemaining <= 1 && !roundEnding) {
+        if (!roundEnding && IsRoundOver ()) {
           StartCoroutine (EndRound ());
         }
       } else if (!roundStarting) {
@@ -82,6 +76,35 @@ public class GameController : NetworkBehaviour {
         roundStarted = false;
         gameOver = true;
       }
+    }
+  }
+
+  bool IsRoundOver () {
+    int playersRemaining = 0;
+    int b = 0, r = 0;
+    foreach (GameObject playerObj in players) {
+      Player player = playerObj.GetComponent<Player> ();
+      if (player == null || player.Ship == null)
+        continue;
+      PlayerController playerController = player.Ship.GetComponent <PlayerController> ();
+      if (playerController == null)
+        continue;
+
+      if (!playerController.isDead) {
+        if (player.team == "blue")
+          b++;
+        if (player.team == "red")
+          r++;
+      }
+    }
+    if (r <= 0 && b > 0) {
+      blueScore++;
+      return true;
+    } else if (b <= 0 && r > 0) {
+      redScore++;
+      return true;
+    } else {
+      return !(b > 0 && r > 0);
     }
   }
 

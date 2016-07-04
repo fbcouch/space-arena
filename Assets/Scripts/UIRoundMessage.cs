@@ -10,6 +10,7 @@ public class UIRoundMessage : MonoBehaviour {
 	public string roundInProgress;
 	public string roundStarting;
 	public string roundEnding;
+  public string gameOver;
 
 	Text textComponent;
 
@@ -27,18 +28,20 @@ public class UIRoundMessage : MonoBehaviour {
 			return;
 		}
 
-		if (gameController.gameStarting) {
-			textComponent.text = gameStarting;
-		} else if (gameController.gameStarted) {
-			if (gameController.roundStarting) {
-				textComponent.text = roundStarting;
-			} else if (gameController.roundStarted) {
-				textComponent.text = roundInProgress;
-			} else if (gameController.roundEnding) {
-				textComponent.text = roundEnding;
-			} else {
-				textComponent.text = gameInProgress;
-			}
+    if (gameController.gameStarting) {
+      textComponent.text = gameStarting;
+    } else if (gameController.gameStarted) {
+      if (gameController.roundStarting) {
+        textComponent.text = roundStarting;
+      } else if (gameController.roundStarted) {
+        textComponent.text = roundInProgress;
+      } else if (gameController.roundEnding) {
+        textComponent.text = roundEnding;
+      } else {
+        textComponent.text = gameInProgress;
+      }
+    } else if (gameController.gameOver) {
+      textComponent.text = gameOver;
 		} else {
 			textComponent.text = preGameStart;
 		}

@@ -10,17 +10,21 @@ public class GameController : NetworkBehaviour {
   public int startWait = 3;
   public int roundWait = 3;
   public int minPlayers = 2;
+  public int gameLength = 30;
 
   private GameObject[] players;
 
   public static GameController instance;
 
   [SyncVar]
-  public bool gameStarted, gameStarting;
+  public bool gameStarted, gameStarting, gameOver;
   [SyncVar]
   public bool roundStarted, roundStarting, roundEnding;
   [SyncVar]
   public int countdown;
+  [SyncVar]
+  public float timeRemaining;
+
 
 
   // Use this for initialization
@@ -32,6 +36,7 @@ public class GameController : NetworkBehaviour {
     }
 
     Debug.Log ("GameController#Start - isServer");
+    timeRemaining = gameLength;
 
     countdown = 0;
   }
@@ -52,12 +57,13 @@ public class GameController : NetworkBehaviour {
       return;
     }
 
-    if (!gameStarted && !gameStarting) {
+    if (!gameStarted && !gameStarting && !gameOver) {
       StartCoroutine (StartGame());
     }
 
     if (gameStarted) {
       if (roundStarted) {
+        timeRemaining -= Time.deltaTime;
         int playersRemaining = 0;
         foreach (GameObject playerObj in GameObject.FindGameObjectsWithTag ("Player")) {
           PlayerController playerController = (PlayerController)playerObj.GetComponent<PlayerController>();
@@ -69,6 +75,12 @@ public class GameController : NetworkBehaviour {
         }
       } else if (!roundStarting) {
         StartCoroutine (StartRound());
+      }
+
+      if (timeRemaining <= 0) {
+        gameStarted = false;
+        roundStarted = false;
+        gameOver = true;
       }
     }
   }
@@ -105,6 +117,7 @@ public class GameController : NetworkBehaviour {
 
   IEnumerator EndRound() {
     Debug.Log ("Round Ending");
+    roundStarted = false;
     roundEnding = true;
     countdown = roundWait;
     while (countdown > 0) {

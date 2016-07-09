@@ -17,7 +17,7 @@ public class GameController : NetworkBehaviour {
   public static GameController instance;
 
   [SyncVar]
-  public bool gameStarted, gameStarting, gameOver;
+  public bool gameStarted, gameStarting, gameOver, overtime;
   [SyncVar]
   public bool roundStarted, roundStarting, roundEnding;
   [SyncVar]
@@ -65,18 +65,32 @@ public class GameController : NetworkBehaviour {
       if (roundStarted) {
         timeRemaining -= Time.deltaTime;
         if (!roundEnding && IsRoundOver ()) {
-          StartCoroutine (EndRound ());
+          if (overtime && blueScore != redScore) {
+            EndGame ();
+          } else {
+            StartCoroutine (EndRound ());
+          }
         }
       } else if (!roundStarting) {
         StartCoroutine (StartRound());
       }
 
-      if (timeRemaining <= 0) {
-        gameStarted = false;
-        roundStarted = false;
-        gameOver = true;
+      if (timeRemaining <= 0 && !overtime) {
+        if (blueScore == redScore) {
+          timeRemaining = 0;
+          overtime = true;
+          StartCoroutine (EndRound ());
+        } else {
+          EndGame ();
+        }
       }
     }
+  }
+
+  void EndGame () {
+    gameStarted = false;
+    roundStarted = false;
+    gameOver = true;
   }
 
   bool IsRoundOver () {

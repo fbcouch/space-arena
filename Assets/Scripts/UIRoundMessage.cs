@@ -11,39 +11,48 @@ public class UIRoundMessage : MonoBehaviour {
 	public string roundStarting;
 	public string roundEnding;
   public string gameOver;
+  public string overtimeStarting;
 
-	Text textComponent;
+  public string redTeamWins, blueTeamWins, tie;
 
-	// Use this for initialization
-	void Start () {
-		textComponent = GetComponent<Text> ();
-	}
+	public Text textRoundMessage;
+  public Text textGameOverMessage;
 	
 	// Update is called once per frame
 	void Update () {
-		if (!gameController) {
-			GameObject controller = GameObject.FindGameObjectWithTag("GameController");
-			if (controller)
-				gameController = controller.GetComponent<GameController>();
-			return;
-		}
-
+    if (gameController == null)
+      gameController = GameController.instance;
+    
     if (gameController.gameStarting) {
-      textComponent.text = gameStarting;
+      textRoundMessage.text = gameStarting;
     } else if (gameController.gameStarted) {
       if (gameController.roundStarting) {
-        textComponent.text = roundStarting;
+        if (gameController.overtime) {
+          textRoundMessage.text = overtimeStarting;
+        } else {
+          textRoundMessage.text = roundStarting;
+        }
       } else if (gameController.roundStarted) {
-        textComponent.text = roundInProgress;
+        textRoundMessage.text = roundInProgress;
       } else if (gameController.roundEnding) {
-        textComponent.text = roundEnding;
+        textRoundMessage.text = roundEnding;
       } else {
-        textComponent.text = gameInProgress;
+        textRoundMessage.text = gameInProgress;
       }
     } else if (gameController.gameOver) {
-      textComponent.text = gameOver;
+      textRoundMessage.text = gameOver;
 		} else {
-			textComponent.text = preGameStart;
+			textRoundMessage.text = preGameStart;
 		}
+
+    if (gameController.gameOver) {
+      if (gameController.blueScore > gameController.redScore) {
+        textGameOverMessage.text = blueTeamWins;
+      } else if (gameController.redScore > gameController.blueScore) {
+        textGameOverMessage.text = redTeamWins;
+      } else {
+        textGameOverMessage.text = tie;
+      }
+    }
 	}
 }

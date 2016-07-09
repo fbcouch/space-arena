@@ -4,6 +4,7 @@ using ProgressBar;
 using System.Collections;
 
 public class PlayerController : NetworkBehaviour {
+  public static PlayerController localPlayer;
 
   public GameObject shot;
   public Transform[] shotSpawns;
@@ -42,6 +43,10 @@ public class PlayerController : NetworkBehaviour {
   public float fireRate;
   public float shieldRate = 1;
   public float ammoRate = 0.5f;
+
+  public int deserterTimeout = 15;
+  public int deserterRadius = 5000;
+  public float deserterCountdown;
 
   private float nextShield = 0.0f;
   private float nextAmmo = 0.0f;
@@ -85,6 +90,8 @@ public class PlayerController : NetworkBehaviour {
     if (!(player && player.isLocalPlayer)) {
       return;
     }
+
+    localPlayer = this;
 
     AttachCamera ();
     throttlePills = GameObject.Find ("ThrottlePills").GetComponent<UIPercentPills> ();
@@ -143,6 +150,15 @@ public class PlayerController : NetworkBehaviour {
 
     if (!(player && player.isLocalPlayer)) {
       return;
+    }
+
+    if (GameController.instance.IsGameRunning () && transform.position.sqrMagnitude > deserterRadius * deserterRadius) {
+      deserterCountdown -= Time.deltaTime;
+      if (deserterCountdown <= 0) {
+        CmdSuicide ();
+      }
+    } else {
+      deserterCountdown = deserterTimeout;
     }
 
     if (player.fire1 && Time.time > nextFire && curAmmo >= shotSpawns.Length) {
@@ -365,6 +381,15 @@ public class PlayerController : NetworkBehaviour {
   public void RpcOnRespawn(Vector3 position, Quaternion rotation) {
     transform.position = position;
     transform.rotation = rotation;
+  }
+
+  [Command]
+  public void CmdSuicide () {
+    Debug.Log ("Suicide");
+    isDead = true;
+    deaths += 1;
+    setRendererEnabled (false);
+    setColliderEnabled (false);
   }
 
   public void TakeDamage (int amount, GameObject shooter) {

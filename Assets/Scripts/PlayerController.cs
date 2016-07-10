@@ -108,7 +108,10 @@ public class PlayerController : NetworkBehaviour {
     if (!GameController.instance.IsGameRunning ()) return;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
 
-    if (!(player && player.isLocalPlayer))
+    if (!player)
+      return;
+
+    if (!(player.isLocalPlayer || (isServer && player.serverControl)))
       return;
 
     // Clamp speed

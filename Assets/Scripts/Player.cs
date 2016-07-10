@@ -25,6 +25,8 @@ public class Player : NetworkBehaviour {
   [SyncVar]
   public string team;
 
+  public bool serverControl = false;
+
   public virtual void Replace (GameObject ship) {
     if (ship != Ship) {
       NetworkServer.Spawn (ship);

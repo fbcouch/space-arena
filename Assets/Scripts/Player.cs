@@ -58,4 +58,11 @@ public class Player : NetworkBehaviour {
   public virtual void FireWeapons() {
     Debug.Log ("Fire Weapons?");
   }
+
+  [Command]
+  public void CmdFireWeapons () {
+    PlayerController playerController = (PlayerController)ship.GetComponent<PlayerController> ();
+    if (playerController != null)
+      playerController.FireWeapons ();
+  }
 }

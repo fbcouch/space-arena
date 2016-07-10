@@ -151,9 +151,11 @@ public class PlayerController : NetworkBehaviour {
       nextShield = Time.time + shieldRate;
     }
 
-    if (!(player && player.isLocalPlayer)) {
+    if (!player)
       return;
-    }
+
+    if (!(player.isLocalPlayer || (isServer && player.serverControl)))
+      return;
 
     if (GameController.instance.IsGameRunning () && transform.position.sqrMagnitude > deserterRadius * deserterRadius) {
       deserterCountdown -= Time.deltaTime;
@@ -182,6 +184,9 @@ public class PlayerController : NetworkBehaviour {
       curAmmo = Mathf.Clamp (curAmmo + 1, 0, maxAmmo);
       nextAmmo = Time.time + ammoRate;
     }
+
+    if (!player.isLocalPlayer)
+      return;
 
     throttlePills.max = 1;
     throttlePills.current = player.throttle;

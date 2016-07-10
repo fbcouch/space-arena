@@ -30,13 +30,6 @@ public class NetworkPlayer : Player {
       CmdFireWeapons ();
   }
 
-  [Command]
-  public void CmdFireWeapons () {
-    PlayerController playerController = (PlayerController)ship.GetComponent<PlayerController> ();
-    if (playerController != null)
-      playerController.FireWeapons ();
-  }
-
   public void Start () {
     if (!isLocalPlayer)
       return;

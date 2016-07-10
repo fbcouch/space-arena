@@ -135,6 +135,9 @@ public class GameController : NetworkBehaviour {
     while (players.Length < minPlayers)
       createAIPlayer ();
 
+    while (players.Length % 2 != 0)
+      createAIPlayer ();
+
     RespawnAll ();
     gameStarted = true;
   }

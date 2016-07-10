@@ -417,13 +417,13 @@ public class PlayerController : NetworkBehaviour {
   }
 
   void setRendererEnabled(bool enabled) {
-    foreach (Renderer r in gameObject.GetComponentsInChildren<Renderer>()) {
+    foreach (Renderer r in shooter.GetComponentsInChildren<Renderer>()) {
       r.enabled = enabled;
     }
   }
 
   void setColliderEnabled(bool enabled) {
-    foreach (Collider r in gameObject.GetComponentsInChildren<Collider>()) {
+    foreach (Collider r in shooter.GetComponentsInChildren<Collider>()) {
       r.enabled = enabled;
     }
   }

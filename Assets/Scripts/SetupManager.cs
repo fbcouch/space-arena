@@ -18,6 +18,7 @@ public class SetupManager : MonoBehaviour {
   public InputField serverAddressInput;
 
 	void Start () {
+    networkManager = GameObject.FindGameObjectWithTag ("NetworkManager").GetComponent<LobbyManager> ();
 		RunOptions ();
 	}
 

@@ -48,6 +48,7 @@ public class GameController : NetworkBehaviour {
     player.Name = "NPC " + players.Length;
     player.playerNum = players.Length;
     players = GameObject.FindGameObjectsWithTag ("GamePlayer");
+    Debug.LogError ("Spawn NPC: " + player.Name);
     NetworkServer.Spawn (player.gameObject);
   }
 

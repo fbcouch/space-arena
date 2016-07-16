@@ -24,8 +24,7 @@ public class ScorecardRow : MonoBehaviour {
       return;
 
     nameText.text = player.name;
-    if (player.isLocalPlayer)
-      pingText.text = "" + player.averagePing;
+    pingText.text = "" + player.averagePing;
 
     if (player.ship == null)
       return;

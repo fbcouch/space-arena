@@ -106,9 +106,14 @@ public class PlayerController : NetworkBehaviour {
   private Vector3 dampAngularVelocity = Vector3.zero;
 
   void FixedUpdate () {
-    if (isDead) return;
-    if (!GameController.instance.IsGameRunning ()) return;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
+    if (isDead) {
+      rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, 0);
+      rigidBody.angularVelocity = rigidBody.rotation * new Vector3 (0, 0, 0);
+      return;
+    }
+
+    if (!GameController.instance.IsGameRunning ()) return;
 
     if (!player)
       return;

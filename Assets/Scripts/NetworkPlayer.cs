@@ -33,6 +33,8 @@ public class NetworkPlayer : Player {
   public void Start () {
     if (!isLocalPlayer)
       return;
+    if (isServer)
+      return;
     StartCoroutine (SendPing ());
   }
 
@@ -66,35 +68,26 @@ public class NetworkPlayer : Player {
 
   IEnumerator SendPing () {
     while (true) {
-      CmdSetPing (Network.GetAveragePing (Network.player));
+      byte error;
+      int rtt = NetworkTransport.GetCurrentRtt (connectionToServer.hostId, connectionToServer.connectionId, out error);
+      Debug.Log ("RTT: " + rtt);
+
+      CmdSetPing (rtt);
       yield return new WaitForSeconds (1);
     }
   }
 
   [Command]
-  public void CmdSetPing (int ping) {
+  public void CmdSetPing(int ping) {
+    Debug.Log ("Cmd Set Ping: " + ping);
     averagePing = ping;
+    RpcSetPing (ping);
   }
 
-  [Command]
-  public void CmdSetInput(string name, float value) {
-    switch (name) {
-    case "roll":
-      roll = value;
-      break;
-    case "yaw":
-      yaw = value;
-      break;
-    case "pitch":
-      pitch = value;
-      break;
-    case "throttle":
-      throttle = value;
-      break;
-    default:
-      Debug.Log ("Unknown Input: " + name);
-      break;
-    }
+  [ClientRpc]
+  public void RpcSetPing(int ping) {
+    Debug.Log ("Rpc Set Ping: " + ping);
+    averagePing = ping;
   }
 
   [Command]

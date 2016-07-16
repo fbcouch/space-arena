@@ -20,7 +20,7 @@ public class Player : NetworkBehaviour {
   public bool fire1 = false;
   [SyncVar]
   public bool fire2 = false;
-  [SyncVar]
+//  [SyncVar]
   public int averagePing = 0;
   [SyncVar]
   public string team;

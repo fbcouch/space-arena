@@ -75,6 +75,7 @@ public class PlayerController : NetworkBehaviour {
   private UIPercentPills weaponPills;
   private UIPercentPills hullPills;
   private UIPercentPills shieldPills;
+  private GameObject centerHUD;
 
   void Start () {
     if (player == null) {
@@ -98,6 +99,7 @@ public class PlayerController : NetworkBehaviour {
     weaponPills = GameObject.Find ("WeaponPills").GetComponent<UIPercentPills> ();
     hullPills = GameObject.Find ("HullPills").GetComponent<UIPercentPills> ();
     shieldPills = GameObject.Find ("ShieldPills").GetComponent<UIPercentPills> ();
+    centerHUD = GameObject.Find ("HUDCenter");
   }
 
   private Vector3 dampVelocity = Vector3.zero;
@@ -145,6 +147,12 @@ public class PlayerController : NetworkBehaviour {
       setColliderEnabled (!isDead);
       wasDead = isDead;
     }
+
+    if (centerHUD != null)
+      centerHUD.SetActive (!isDead);
+
+    if (isDead)
+      return;
 
     if (Time.time > nextShield) {
       curShield = Mathf.Clamp (curShield + 1, 0, maxShield);
@@ -378,6 +386,8 @@ public class PlayerController : NetworkBehaviour {
     setColliderEnabled (true);
     isDead = false;
     curHealth = maxHealth;
+    curShield = maxShield;
+    curAmmo = maxAmmo;
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
     rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, 0);
 
@@ -418,6 +428,9 @@ public class PlayerController : NetworkBehaviour {
 //			NetworkServer.Destroy (this.gameObject);
       isDead = true;
       deaths += 1;
+      Rigidbody rigidBody = GetComponent<Rigidbody> ();
+      rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, 0);
+      rigidBody.angularVelocity = rigidBody.rotation * new Vector3 (0, 0, 0);
       ((PlayerController)shooter.transform.parent.gameObject.GetComponent<PlayerController> ()).kills += 1;
       setRendererEnabled (false);
       setColliderEnabled (false);

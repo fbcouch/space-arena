@@ -33,6 +33,6 @@ public class Scorecard : MonoBehaviour {
     foreach (ScorecardRow row in redTeam)
       row.GetComponent<CanvasGroup> ().alpha = (row.player == null ? 0 : 1);
 
-    GetComponent<Canvas> ().enabled = Input.GetButton ("Scoreboard");
+    GetComponent<Canvas> ().enabled = Input.GetButton ("Scoreboard") || (PlayerController.localPlayer != null && PlayerController.localPlayer.isDead);
 	}
 }

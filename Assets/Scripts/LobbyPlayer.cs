@@ -9,10 +9,16 @@ public class LobbyPlayer : NetworkLobbyPlayer {
   [SyncVar]
   public int playerNum = -1;
 
+  [SyncVar]
+  public string team;
+
+  public static LobbyPlayer localPlayer;
+
 	// Use this for initialization
 	void Start () {
     if (!isLocalPlayer)
       return;
+    localPlayer = this;
     name = "CPT Anonymous";
     if (PlayerPrefs.HasKey ("playerName"))
       name = PlayerPrefs.GetString ("playerName");
@@ -21,16 +27,6 @@ public class LobbyPlayer : NetworkLobbyPlayer {
 
   void Awake() {
     DontDestroyOnLoad(transform.gameObject);
-  }
-	
-  public void Update () {
-    GameObject uiGameObject = GameObject.Find ("PlayerRow (" + playerNum + ")");
-    if (uiGameObject == null)
-      return;
-    UIPlayerSlot uiPlayerSlot = uiGameObject.GetComponent <UIPlayerSlot> ();
-    if (uiPlayerSlot == null)
-      return;
-    uiPlayerSlot.lobbyPlayer = this.gameObject.GetComponent<LobbyPlayer> ();
   }
 
   [Command]

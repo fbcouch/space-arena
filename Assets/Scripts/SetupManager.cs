@@ -8,6 +8,7 @@ public class SetupManager : MonoBehaviour {
 	public GameObject mainMenu;
 	public GameObject optionsMenu;
 	public GameObject multiplayerSetupMenu;
+  public GameObject multiplayerLobby;
 
 	public GameObject playerNameInput;
 	public GameObject musicToggle;
@@ -17,9 +18,13 @@ public class SetupManager : MonoBehaviour {
 
   public InputField serverAddressInput;
 
+  public static SetupManager instance;
+
 	void Start () {
+    instance = this;
     networkManager = GameObject.FindGameObjectWithTag ("NetworkManager").GetComponent<LobbyManager> ();
 		RunOptions ();
+    ShowMenu (mainMenu);
 	}
 
 	public void OnExitClicked () {
@@ -68,6 +73,10 @@ public class SetupManager : MonoBehaviour {
     networkManager.StartClient ();
   }
 
+  public void OnLobbyClientEnter () {
+    ShowMenu (multiplayerLobby);
+  }
+
   public void StopClient () {
     networkManager.StopClient ();
     SceneManager.LoadScene ("setup");
@@ -109,6 +118,8 @@ public class SetupManager : MonoBehaviour {
 			optionsMenu.GetComponent<Canvas> ().enabled = false;
 		if (multiplayerSetupMenu != null)
 			multiplayerSetupMenu.GetComponent<Canvas> ().enabled = false;
+    if (multiplayerLobby != null)
+      multiplayerLobby.GetComponent<Canvas> ().enabled = false;
 		menu.GetComponent<Canvas> ().enabled = true;
 	}
 }

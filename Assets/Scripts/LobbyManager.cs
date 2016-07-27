@@ -3,8 +3,15 @@ using UnityEngine.Networking;
 using System.Collections;
 
 public class LobbyManager : NetworkLobbyManager {
-  public UIPlayerSlot[] uiSlots;
 
+  public GameConfig gameConfig;
+  public GameObject gameConfigPrefab;
+
+  public override void OnLobbyStartServer ()
+  {
+    gameConfig = Instantiate (gameConfigPrefab).GetComponent<GameConfig> ();
+  }
+  
   public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
   {
     Debug.Log ("OnLobbyServerCreateLobbyPlayer");
@@ -13,14 +20,35 @@ public class LobbyManager : NetworkLobbyManager {
 
     Debug.Log (player);
 
-	  if (numPlayers < uiSlots.Length) {
-			Debug.Log ("Num Players: " + numPlayers);
-			Debug.Log (uiSlots [numPlayers]);
-	    uiSlots [numPlayers].lobbyPlayer = player;
-      player.playerNum = numPlayers;
-	  }
+    Debug.Log ("Num Players: " + numPlayers);
+    player.playerNum = numPlayers;
+
+    int b = 0, r = 0;
+    foreach (LobbyPlayer p in lobbySlots) {
+      if (p == null)
+        continue;
+      if (p.team == "blue")
+        b++;
+      if (p.team == "red")
+        r++;
+    }
+
+    if (b > r) {
+      player.team = "red";
+    } else {
+      player.team = "blue";
+    }
+
+    NetworkServer.Spawn (gameConfig.gameObject);
 
     return player.gameObject;
+  }
+
+  public override void OnLobbyClientEnter ()
+  {
+    base.OnLobbyClientEnter ();
+
+    SetupManager.instance.OnLobbyClientEnter ();
   }
 
   public override void OnStopServer () {
@@ -62,5 +90,13 @@ public class LobbyManager : NetworkLobbyManager {
   {
     Debug.Log ("OnLobbyServerCreateGamePlayer");
     return base.OnLobbyServerCreateGamePlayer (conn, playerControllerId);
+  }
+
+  public void TeamSizeChanged (int newVal) {
+    gameConfig.teamSize = newVal;
+  }
+
+  public void GameLengthChanged (int newVal) {
+    gameConfig.gameLength = newVal;
   }
 }

@@ -38,7 +38,7 @@ public class LobbyManager : NetworkLobbyManager {
     } else {
       player.team = "blue";
     }
-
+      
     NetworkServer.Spawn (gameConfig.gameObject);
 
     return player.gameObject;
@@ -82,6 +82,7 @@ public class LobbyManager : NetworkLobbyManager {
     LobbyPlayer lPlayer = lobbyPlayer.GetComponent<LobbyPlayer> ();
     networkPlayer.name = lPlayer.name;
     networkPlayer.playerNum = lPlayer.playerNum;
+    networkPlayer.team = lPlayer.team;
 
     return true;
   }

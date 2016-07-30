@@ -9,12 +9,10 @@ public class PlayerRow : MonoBehaviour {
   public Color redColor = new Color (255, 87, 34);
   public int index = 0;
 
-  public Color notReadyColor = new Color(1f, 1f, 1f, 0.5f);
-  public Color readyColor = Color.white;
-
   public Image background;
   public Text name;
   public Text ping;
+  public Text ready;
 
   LobbyManager lobbyManager;
 
@@ -36,14 +34,19 @@ public class PlayerRow : MonoBehaviour {
       if (lobbyPlayer.team != team)
         continue;
       if (index == i) {
+        GetComponent<CanvasGroup> ().alpha = 1f;
         name.text = lobbyPlayer.name;
+        ping.text = lobbyPlayer.averagePing.ToString ();
         if (lobbyPlayer.readyToBegin) {
-          name.color = readyColor;
+          ready.text = "Y";
         } else {
-          name.color = notReadyColor;
+          ready.text = "";
         }
+        return;
       }
       i++;
     }
+    name.text = "[EMPTY]";
+    GetComponent<CanvasGroup> ().alpha = 0.5f;
 	}
 }

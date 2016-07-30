@@ -7,4 +7,11 @@ public class GameConfig : NetworkBehaviour {
   public int gameLength = 4;
   [SyncVar]
   public int teamSize = 2;
+
+  public static GameConfig instance;
+
+  void Start () {
+    DontDestroyOnLoad (gameObject);
+    instance = this;
+  }
 }

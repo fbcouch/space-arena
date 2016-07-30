@@ -36,6 +36,9 @@ public class GameController : NetworkBehaviour {
     }
 
     Debug.Log ("GameController#Start - isServer");
+    gameLength = (GameConfig.instance.gameLength + 1) * 60;
+    minPlayers = (GameConfig.instance.teamSize + 1) * 2;
+
     timeRemaining = gameLength;
 
     countdown = 0;
@@ -45,6 +48,23 @@ public class GameController : NetworkBehaviour {
     Player player = Instantiate (aiPlayerPrefab, Vector3.zero, Quaternion.identity) as Player;
     Debug.Log (player);
     Debug.Log (players);
+
+    int b = 0, r = 0;
+    foreach (GameObject playerObj in players) {
+      if (playerObj == null) return;
+      Player playerComponent = playerObj.GetComponent <Player> ();
+      if (playerComponent.team == "blue")
+        b++;
+      if (playerComponent.team == "red")
+        r++;
+    }
+
+    if (b > r) {
+      player.team = "red";
+    } else {
+      player.team = "blue";
+    }
+
     player.Name = "NPC " + players.Length;
     player.playerNum = players.Length;
     players = GameObject.FindGameObjectsWithTag ("GamePlayer");
@@ -175,22 +195,21 @@ public class GameController : NetworkBehaviour {
 
   public void RespawnAll () {
     int b = 0, r = 0;
-    GameObject spawn;
+    GameObject spawn = null;
     for (var i = 0; i < players.Length; i++) {
       Debug.Log (players [i]);
       Player playerComponent = players [i].GetComponent<Player> ();
 
-      if (i < players.Length / 2) {
-        playerComponent.team = "blue";
+      if (playerComponent.team == "blue") {
         spawn = blueSpawns [b];
         b++;
-      } else {
-        playerComponent.team = "red";
+      } else if (playerComponent.team == "red") {
         spawn = redSpawns [r];
         r++;
       }
 
-      Respawn (playerComponent, spawn);
+      if (spawn != null)
+        Respawn (playerComponent, spawn);
     }
   }
 

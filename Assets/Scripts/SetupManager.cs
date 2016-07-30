@@ -23,6 +23,8 @@ public class SetupManager : MonoBehaviour {
 	void Start () {
     instance = this;
     networkManager = GameObject.FindGameObjectWithTag ("NetworkManager").GetComponent<LobbyManager> ();
+    if (GameConfig.instance != null)
+      Destroy (GameConfig.instance.gameObject);
 		RunOptions ();
     ShowMenu (mainMenu);
 	}

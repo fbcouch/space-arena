@@ -31,6 +31,9 @@ public class SetupPanel : NetworkBehaviour {
       return;
     }
 
+    teamSize.interactable = false;
+    gameLength.interactable = false;
+
     teamSize.value = gameConfig.teamSize;
     gameLength.value = gameConfig.gameLength;
   }

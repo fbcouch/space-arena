@@ -360,16 +360,18 @@ public class PlayerController : NetworkBehaviour {
     }
   }
  
-  public void FireWeapons () {
+  public void FireWeapons (float delay) {
     if (isDead) return;
-
+    Debug.Log ("Firing at " + delay.ToString () + "s delay");
     foreach (Transform shotSpawn in shotSpawns) {
       GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
       missile.GetComponent<Bolt> ().shooter = shooter.gameObject;
       Rigidbody rigidBody = missile.GetComponent<Rigidbody> ();
 
       rigidBody.velocity = transform.forward * shotSpeed;
-      NetworkServer.Spawn (missile);
+      rigidBody.position += rigidBody.velocity * delay;
+      missile.GetComponent<DestroyByTime> ().lifetime -= delay;
+//      NetworkServer.Spawn (missile);
     }
   }
 
@@ -416,6 +418,8 @@ public class PlayerController : NetworkBehaviour {
   }
 
   public void TakeDamage (int amount, GameObject shooter) {
+    if (!isServer)
+      return;
     if (isDead)
       return;
     if (curShield > 0) {

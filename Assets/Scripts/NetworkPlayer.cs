@@ -26,8 +26,11 @@ public class NetworkPlayer : Player {
 
   public override void FireWeapons () {
     Debug.Log ("Fire Weapons!");
-    if (isLocalPlayer)
-      CmdFireWeapons ();
+    if (isLocalPlayer) {
+      PlayerController playerController = (PlayerController)ship.GetComponent<PlayerController> ();
+      playerController.FireWeapons (0);
+      CmdFireWeapons (GameController.instance.timeRemaining);
+    }
   }
 
   public void Start () {

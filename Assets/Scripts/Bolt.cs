@@ -7,16 +7,13 @@ public class Bolt : NetworkBehaviour {
   public GameObject shooter;
 
   void OnTriggerEnter(Collider other) {
-    if (!isServer)
-      return;
-
     Debug.Log ("Other: " + other.gameObject + " Shooter: " + shooter);
 
     if (other.gameObject == shooter)
       return;
 
     GetComponent<Exploder>().Explode();
-    NetworkServer.Destroy (gameObject);
+    Destroy (gameObject);
 
     if (other.gameObject.transform.parent == null)
       return;
@@ -28,25 +25,7 @@ public class Bolt : NetworkBehaviour {
       player.TakeDamage(damage, shooter);
     }
   }
-
-  void Start() {
-    if (isServer)
-      return;
-
-    setRendererEnabled (false);
-
-    Debug.Log ("Bolt Rotation: " + gameObject.transform.rotation);
-  }
-
-  void Update() {
-    if (isServer)
-      return;
-
-    setRendererEnabled (true);
-
-    Debug.Log ("Bolt Rotation: " + gameObject.transform.rotation);
-  }
-
+    
   void setRendererEnabled(bool enabled) {
     foreach (Renderer r in gameObject.GetComponentsInChildren<Renderer>()) {
       r.enabled = enabled;

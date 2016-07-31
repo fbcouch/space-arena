@@ -59,10 +59,17 @@ public class Player : NetworkBehaviour {
     Debug.Log ("Fire Weapons?");
   }
 
-  [Command]
-  public void CmdFireWeapons () {
+  [ClientRpc]
+  public void RpcFireWeapons (float timeRemaining) {
+    if (isLocalPlayer)
+      return;
     PlayerController playerController = (PlayerController)ship.GetComponent<PlayerController> ();
     if (playerController != null)
-      playerController.FireWeapons ();
+      playerController.FireWeapons (timeRemaining - GameController.instance.timeRemaining);
+  }
+
+  [Command]
+  public void CmdFireWeapons (float timeRemaining) {
+    RpcFireWeapons (timeRemaining);
   }
 }

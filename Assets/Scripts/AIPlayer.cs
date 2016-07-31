@@ -75,6 +75,6 @@ public class AIPlayer : Player {
   public override void FireWeapons ()
   {
     if (isServer)
-      CmdFireWeapons ();
+      CmdFireWeapons (GameController.instance.timeRemaining);
   }
 }

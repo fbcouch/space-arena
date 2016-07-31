@@ -17,6 +17,7 @@ public class SetupManager : MonoBehaviour {
 	public LobbyManager networkManager;
 
   public InputField serverAddressInput;
+  public Toggle publicServer;
 
   public static SetupManager instance;
 
@@ -52,6 +53,7 @@ public class SetupManager : MonoBehaviour {
 
 	public void OnQuickStartClicked () {
 		Debug.Log ("Quick Start");
+    networkManager.isPublicServer = false;
 		mainMenu.GetComponent<Canvas> ().enabled = false;
 		networkManager.StartHost ();
 		StartCoroutine (AutoReady ());
@@ -63,6 +65,7 @@ public class SetupManager : MonoBehaviour {
 	}
 
 	public void OnHostGameClicked () {
+    networkManager.isPublicServer = publicServer.isOn;
 		networkManager.StartHost ();
 	}
 

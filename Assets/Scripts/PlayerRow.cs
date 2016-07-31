@@ -46,7 +46,11 @@ public class PlayerRow : MonoBehaviour {
       }
       i++;
     }
-    name.text = "[EMPTY]";
+    if (GameConfig.instance != null && index > GameConfig.instance.teamSize) {
+      name.text = "CLOSED";
+    } else {
+      name.text = "[EMPTY]";
+    }
     GetComponent<CanvasGroup> ().alpha = 0.5f;
 	}
 }

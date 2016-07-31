@@ -6,10 +6,16 @@ public class LobbyManager : NetworkLobbyManager {
 
   public GameConfig gameConfig;
   public GameObject gameConfigPrefab;
+  public bool isPublicServer;
+
+  public string apiUrl = "https://space-arena-api.herokuapp.com/game_hosts";
+  public int gameHostId;
+  public string gameHostToken;
 
   public override void OnLobbyStartServer ()
   {
     gameConfig = Instantiate (gameConfigPrefab).GetComponent<GameConfig> ();
+    StartCoroutine (RegisterServer ());
   }
   
   public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
@@ -41,6 +47,8 @@ public class LobbyManager : NetworkLobbyManager {
       
     NetworkServer.Spawn (gameConfig.gameObject);
 
+    StartCoroutine (UpdateServer ());
+
     return player.gameObject;
   }
 
@@ -51,11 +59,20 @@ public class LobbyManager : NetworkLobbyManager {
     SetupManager.instance.OnLobbyClientEnter ();
   }
 
+  public override void OnLobbyServerDisconnect (NetworkConnection conn)
+  {
+    base.OnLobbyServerDisconnect (conn);
+
+    StartCoroutine (UpdateServer ());
+  }
+
   public override void OnStopServer () {
     Debug.Log ("OnStopServer");
     foreach (GameObject player in GameObject.FindGameObjectsWithTag ("GamePlayer")) {
       Destroy (player);
     }
+
+    StartCoroutine (DestroyServer ());
   }
 
   public override void OnLobbyServerPlayersReady()
@@ -71,6 +88,7 @@ public class LobbyManager : NetworkLobbyManager {
     if (allready) {
       Debug.Log ("All Ready!");
       base.OnLobbyServerPlayersReady ();
+      StartCoroutine (DestroyServer ());
     }
   }
 
@@ -99,5 +117,49 @@ public class LobbyManager : NetworkLobbyManager {
 
   public void GameLengthChanged (int newVal) {
     gameConfig.gameLength = newVal;
+  }
+
+  IEnumerator RegisterServer () {
+    if (!isPublicServer)
+      yield break;
+
+    WWWForm form = new WWWForm ();
+    form.AddField ("game_host[version]", "0");
+    form.AddField ("game_host[name]", "---");
+    form.AddField ("game_host[port]", networkPort.ToString ());
+    form.AddField ("game_host[cur_players]", "0");
+    form.AddField ("game_host[max_players]", "0");
+
+    WWW w = new WWW (apiUrl, form);
+    yield return w;
+    if (!string.IsNullOrEmpty (w.error)) {
+      Debug.LogError (w.error);
+    } else {
+      Debug.Log (w.text);
+      GameHost gameHost = JsonUtility.FromJson<GameHost> (w.text);
+      gameHostToken = gameHost.token;
+      gameHostId = gameHost.id;
+    }
+  }
+
+  IEnumerator UpdateServer () {
+    yield break;
+  }
+
+  IEnumerator DestroyServer () {
+    if (gameHostToken == null || gameHostId == null)
+      yield break;
+
+    WWWForm form = new WWWForm ();
+    form.AddField ("_method", "DELETE");
+    form.AddField ("token", gameHostToken);
+
+    WWW w = new WWW (apiUrl + "/" + gameHostId.ToString (), form);
+    yield return w;
+    if (!string.IsNullOrEmpty (w.error)) {
+      Debug.LogError (w.error);
+    } else {
+      Debug.Log (w.text);
+    }
   }
 }

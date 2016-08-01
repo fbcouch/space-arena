@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using Mono.Nat;
 
 public class SetupManager : MonoBehaviour {
 	public GameObject mainMenu;
@@ -19,6 +20,11 @@ public class SetupManager : MonoBehaviour {
   public InputField serverAddressInput;
   public Toggle publicServer;
 
+  public string apiUrl = "https://space-arena-api.herokuapp.com/game_hosts";
+  public GameHostCollection gameHosts;
+  public GameObject serverRowPrefab;
+  public GameObject serverList;
+
   public static SetupManager instance;
 
 	void Start () {
@@ -28,7 +34,22 @@ public class SetupManager : MonoBehaviour {
       Destroy (GameConfig.instance.gameObject);
 		RunOptions ();
     ShowMenu (mainMenu);
+
+    NatUtility.DeviceFound += DeviceFound;
+    NatUtility.DeviceLost += DeviceLost;
+    NatUtility.StartDiscovery ();
 	}
+
+  private void DeviceFound (object sender, DeviceEventArgs args) {
+    INatDevice device = args.Device;
+    device.CreatePortMap (new Mapping (Protocol.Udp, 7777, 7777));
+    Debug.Log ("External IP: " + device.GetExternalIP ().ToString ());
+  }
+
+  private void DeviceLost (object sender, DeviceEventArgs args) {
+    INatDevice device = args.Device;
+    device.DeletePortMap (new Mapping (Protocol.Udp, 7777, 7777));
+  }
 
 	public void OnExitClicked () {
 		Debug.Log ("Exit");
@@ -43,7 +64,31 @@ public class SetupManager : MonoBehaviour {
 	public void OnMultiplayerClicked () {
 		Debug.Log ("To Multiplayer Menu");
 		ShowMenu (multiplayerSetupMenu);
+
+    StartCoroutine (FetchServers ());
 	}
+
+  IEnumerator FetchServers () {
+    WWW w = new WWW (apiUrl);
+
+    yield return w;
+
+    if (!string.IsNullOrEmpty (w.error)) {
+      Debug.LogError (w.error);
+    } else {
+      Debug.Log (w.text);
+      gameHosts = JsonUtility.FromJson<GameHostCollection> (w.text);
+      GameObject prev = null;
+      Debug.Log (gameHosts.data);
+      RectTransform rectTransform = serverList.GetComponent<RectTransform> ();
+      rectTransform.sizeDelta = new Vector2 (rectTransform.sizeDelta.x, gameHosts.data.Length * 37 + 20);
+      foreach (GameHost gameHost in gameHosts.data) {
+        GameObject serverRow = Instantiate (serverRowPrefab) as GameObject;
+        serverRow.transform.SetParent (serverList.transform);
+        serverRow.GetComponent<ServerRow> ().gameHost = gameHost;
+      }
+    }
+  }
 
 	public void OnOptionsMenuClicked () {
 		Debug.Log ("To Options");

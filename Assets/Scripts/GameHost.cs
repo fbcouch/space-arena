@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GameHost {
+[System.Serializable]
+public struct GameHost {
   public int id;
   public string name;
   public string ip;

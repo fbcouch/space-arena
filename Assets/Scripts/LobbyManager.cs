@@ -47,8 +47,6 @@ public class LobbyManager : NetworkLobbyManager {
       
     NetworkServer.Spawn (gameConfig.gameObject);
 
-    StartCoroutine (UpdateServer ());
-
     return player.gameObject;
   }
 
@@ -63,7 +61,7 @@ public class LobbyManager : NetworkLobbyManager {
   {
     base.OnLobbyServerDisconnect (conn);
 
-    StartCoroutine (UpdateServer ());
+    StopCoroutine (UpdateServer ());
   }
 
   public override void OnStopServer () {
@@ -124,8 +122,8 @@ public class LobbyManager : NetworkLobbyManager {
       yield break;
 
     WWWForm form = new WWWForm ();
-    form.AddField ("game_host[version]", "0");
-    form.AddField ("game_host[name]", "---");
+    form.AddField ("game_host[version]", Version.version);
+    form.AddField ("game_host[name]", "Multiplayer Game");
     form.AddField ("game_host[port]", networkPort.ToString ());
     form.AddField ("game_host[cur_players]", "0");
     form.AddField ("game_host[max_players]", "0");
@@ -139,11 +137,31 @@ public class LobbyManager : NetworkLobbyManager {
       GameHost gameHost = JsonUtility.FromJson<GameHost> (w.text);
       gameHostToken = gameHost.token;
       gameHostId = gameHost.id;
+      StartCoroutine (UpdateServer ());
     }
   }
 
   IEnumerator UpdateServer () {
-    yield break;
+    while (!(gameHostToken == null || gameHostId == null)) {
+      var curPlayers = numPlayers.ToString ();
+      var maxPlayers = (gameConfig.teamSize + 1) * 2;
+
+      WWWForm form = new WWWForm ();
+      form.AddField ("_method", "PUT");
+      form.AddField ("token", gameHostToken);
+      form.AddField ("game_host[cur_players]", curPlayers);
+      form.AddField ("game_host[max_players]", maxPlayers);
+
+      WWW w = new WWW (apiUrl + "/" + gameHostId.ToString (), form);
+      yield return w;
+      if (!string.IsNullOrEmpty (w.error)) {
+        Debug.LogError (w.error);
+      } else {
+        Debug.Log (w.text);
+      }
+
+      yield return new WaitForSeconds(15);
+    }
   }
 
   IEnumerator DestroyServer () {

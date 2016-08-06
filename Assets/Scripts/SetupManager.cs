@@ -69,7 +69,7 @@ public class SetupManager : MonoBehaviour {
 	}
 
   IEnumerator FetchServers () {
-    WWW w = new WWW (apiUrl);
+    WWW w = new WWW (apiUrl + "?version=" + Version.version);
 
     yield return w;
 

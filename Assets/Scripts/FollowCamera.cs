@@ -9,10 +9,43 @@ public class FollowCamera : MonoBehaviour {
   public GameObject target;
   public Vector3 offset;
   Vector3 targetPos;
+  public bool firstPersonMode = true;
+
+  bool toggleKeyDown = false;
+  bool switchKeyDown = false;
+  int specIndex = 0;
 
   // Use this for initialization
   void Start () {
     targetPos = transform.position;
+  }
+
+  void FixedUpdate () {
+    bool buttonState = Input.GetButton ("toggleCameraMode");
+    if (buttonState && !toggleKeyDown) {
+      firstPersonMode = !firstPersonMode;
+    } 
+    toggleKeyDown = buttonState;
+
+    if (GameController.instance != null) {
+      if (PlayerController.localPlayer != null && !PlayerController.localPlayer.isDead) {
+        AttachCamera ();
+      } else {
+        SwitchTarget ();
+      }
+    }
+  }
+
+  void SwitchTarget () {
+    bool buttonState = Input.GetButton ("Fire1");
+    if (buttonState && !switchKeyDown) {
+      GameObject lastGameObject = null;
+      GameObject[] gameObjects = GameObject.FindGameObjectsWithTag ("Player");
+      specIndex = (specIndex + 1) % gameObjects.Length;
+      target = gameObjects [specIndex];
+    }
+
+    switchKeyDown = buttonState;
   }
 
   // Update is called once per frame
@@ -25,12 +58,20 @@ public class FollowCamera : MonoBehaviour {
 
       interpolationVelocity = targetDirection.magnitude * 5f;
 
-      targetPos = target.transform.position; // + (Quaternion.Inverse(target.transform.rotation) * offset);
+      if (firstPersonMode) {
+        targetPos = target.transform.position;
 
-      // transform.position = Vector3.Lerp (transform.position, targetPos, 1f);
-      transform.position = targetPos;
-
-      transform.rotation = target.transform.rotation;
+        transform.position = targetPos;
+        transform.rotation = target.transform.rotation;
+      } else {
+        Transform targetTransform = target.transform.FindChild ("Camera3").transform;
+        transform.position = targetTransform.position;
+        transform.rotation = targetTransform.rotation;
+      }
     }
+  }
+
+  public void AttachCamera () {
+    target = PlayerController.localPlayer.gameObject;
   }
 }

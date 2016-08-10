@@ -94,7 +94,6 @@ public class PlayerController : NetworkBehaviour {
 
     localPlayer = this;
 
-    AttachCamera ();
     throttlePills = GameObject.Find ("ThrottlePills").GetComponent<UIPercentPills> ();
     weaponPills = GameObject.Find ("WeaponPills").GetComponent<UIPercentPills> ();
     hullPills = GameObject.Find ("HullPills").GetComponent<UIPercentPills> ();
@@ -148,7 +147,7 @@ public class PlayerController : NetworkBehaviour {
   void Update () {
     if (isDead != wasDead) {
       Debug.Log ("Dead status changed");
-      setRendererEnabled (!(player && player.isLocalPlayer) && !isDead);
+      setRendererEnabled (!isDead);
       setColliderEnabled (!isDead);
       wasDead = isDead;
     }
@@ -372,19 +371,6 @@ public class PlayerController : NetworkBehaviour {
       rigidBody.position += rigidBody.velocity * delay;
       missile.GetComponent<DestroyByTime> ().lifetime -= delay;
 //      NetworkServer.Spawn (missile);
-    }
-  }
-
-  void AttachCamera () {
-    camera = Camera.main;
-    if (camera) {
-      camera.GetComponent<FollowCamera>().target = gameObject;
-    }
-  }
-
-  void DetachCamera () {
-    if (camera) {
-      camera.GetComponent<FollowCamera>().target = null;
     }
   }
 

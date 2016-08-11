@@ -52,7 +52,7 @@ public class PlayerController : NetworkBehaviour {
   private float nextAmmo = 0.0f;
 
   private float nextFire = 0.0f;
-  private GameObject target;
+  public GameObject target;
 
   private bool fire2Up = false;
 
@@ -253,31 +253,6 @@ public class PlayerController : NetworkBehaviour {
     GUI.Label (new Rect (0, Screen.height - 64, Screen.width, 50), "Hull: " + Mathf.Round(100.0f * curHealth / maxHealth) + "%", style);
   }
 
-  void DrawHUDBox (GameObject gameObject, PlayerController playerController) {
-    Vector3 itemScreenPosition = Camera.main.WorldToScreenPoint (gameObject.transform.position);
-    float distance = Vector3.Distance (gameObject.transform.position, Camera.main.transform.position) / 4;
-
-    if (itemScreenPosition.z > 0) {
-      float width = boxImage.width / distance;
-      if (width < 16)
-        width = 16;
-      float height = boxImage.height / distance;
-      if (height < 16)
-        height = 16;
-      float posX = itemScreenPosition.x - width / 2;
-      float posY = Screen.height - itemScreenPosition.y - height / 2;
-      GUIStyle style = new GUIStyle ();
-      style.fontSize = (int)(24 / distance);
-      if (style.fontSize < 12)
-        style.fontSize = 12;
-      style.alignment = TextAnchor.UpperCenter;
-      style.normal.textColor = Color.white;
-      GUI.color = colorForGameObject(gameObject);
-      GUI.DrawTexture (new Rect (posX, posY, width, height), boxImage);
-      GUI.Label (new Rect (posX, posY - style.fontSize * 1.25f, width, height), "[" + playerController.kills + "/" + playerController.deaths + "] " + playerController.playerName, style);
-    }
-  }
-
   Color colorForGameObject (GameObject gameObject) {
     if (gameObject == target) {
       return Color.magenta;
@@ -329,9 +304,6 @@ public class PlayerController : NetworkBehaviour {
         GUI.color = style.normal.textColor = new Color(255f, 255f, 255f, 0.75f);
       }
       GUI.DrawTexture (new Rect (posX, posY, leadTargetSize, leadTargetSize), leadTargetImage);
-
-      style.alignment = TextAnchor.LowerCenter;
-      GUI.Label (new Rect (itemScreenPosition.x - 50, Screen.height - itemScreenPosition.y + leadTargetSize, 100, 10f), Mathf.Round(distance) + "m", style);
     }
   }
 
@@ -351,7 +323,6 @@ public class PlayerController : NetworkBehaviour {
       if (otherController == null || otherController.isDead)
         continue;
 
-      DrawHUDBox (gameObject, otherController);
       DrawHUDPointer (gameObject, otherController);
       DrawHUDMinimap (gameObject, otherController);
       if (target == gameObject)

@@ -96,8 +96,8 @@ public class PlayerController : NetworkBehaviour {
 
     throttlePills = GameObject.Find ("ThrottlePills").GetComponent<UIPercentPills> ();
     weaponPills = GameObject.Find ("WeaponPills").GetComponent<UIPercentPills> ();
-    hullPills = GameObject.Find ("HullPills").GetComponent<UIPercentPills> ();
-    shieldPills = GameObject.Find ("ShieldPills").GetComponent<UIPercentPills> ();
+    hullPills = GameObject.Find ("HUDCenter/HullPills").GetComponent<UIPercentPills> ();
+    shieldPills = GameObject.Find ("HUDCenter/ShieldPills").GetComponent<UIPercentPills> ();
     centerHUD = GameObject.Find ("HUDCenter");
   }
 
@@ -211,8 +211,11 @@ public class PlayerController : NetworkBehaviour {
 
     shieldPills.max = maxShield;
     shieldPills.current = curShield;
-  }
 
+    if (target.GetComponent<PlayerController> ().isDead)
+      target = null;
+  }
+    
   void TargetAhead () {
     float minDist = -1;
     GameObject newTarget = null;
@@ -243,16 +246,7 @@ public class PlayerController : NetworkBehaviour {
     GUI.color = Color.white;
     GUI.DrawTexture (new Rect (0, Screen.height - minimapImage.height, minimapImage.width, minimapImage.height), minimapImage);
   }
-
-  void DrawStats () {
-    Rigidbody rigidBody = GetComponent<Rigidbody> ();
-    GUIStyle style = new GUIStyle ();
-    style.normal.textColor = Color.white;
-    style.alignment = TextAnchor.LowerRight;
-    GUI.Label (new Rect (0, Screen.height - 50, Screen.width, 50), "Velocity: " + Mathf.Round(rigidBody.velocity.magnitude) + "m/s", style);
-    GUI.Label (new Rect (0, Screen.height - 64, Screen.width, 50), "Hull: " + Mathf.Round(100.0f * curHealth / maxHealth) + "%", style);
-  }
-
+    
   Color colorForGameObject (GameObject gameObject) {
     if (gameObject == target) {
       return Color.magenta;
@@ -314,7 +308,6 @@ public class PlayerController : NetworkBehaviour {
       return;
     DrawReticule ();
     DrawMinimap ();
-    DrawStats ();
 
     foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag ("Player")) {
       PlayerController otherController = gameObject.GetComponent<PlayerController> ();

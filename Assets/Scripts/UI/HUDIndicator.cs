@@ -50,7 +50,6 @@ public class HUDIndicator : MonoBehaviour {
       cg.alpha = 1;
       var rt = GetComponent<RectTransform> ();
       var size = Mathf.Clamp (Mathf.Pow (1000 / itemScreenPosition.z, 2), 0.5f, 1);
-//      transform.localScale = new Vector3 (0.5f, 0.5f, 1);
     } else {
       cg.alpha = 0;
     }

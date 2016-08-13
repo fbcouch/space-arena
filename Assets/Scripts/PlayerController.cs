@@ -212,7 +212,7 @@ public class PlayerController : NetworkBehaviour {
     shieldPills.max = maxShield;
     shieldPills.current = curShield;
 
-    if (target.GetComponent<PlayerController> ().isDead)
+    if (target != null && target.GetComponent<PlayerController> ().isDead)
       target = null;
   }
     
@@ -307,7 +307,6 @@ public class PlayerController : NetworkBehaviour {
     if (isDead)
       return;
     DrawReticule ();
-    DrawMinimap ();
 
     foreach (GameObject gameObject in GameObject.FindGameObjectsWithTag ("Player")) {
       PlayerController otherController = gameObject.GetComponent<PlayerController> ();
@@ -316,8 +315,6 @@ public class PlayerController : NetworkBehaviour {
       if (otherController == null || otherController.isDead)
         continue;
 
-      DrawHUDPointer (gameObject, otherController);
-      DrawHUDMinimap (gameObject, otherController);
       if (target == gameObject)
         DrawLeadIndicator (gameObject, otherController);
     }

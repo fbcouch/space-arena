@@ -8,24 +8,26 @@ public class Player : NetworkBehaviour {
   public string name;
   [SyncVar]
   public int playerNum = -1;
-  //[SyncVar]
+  [SyncVar]
+  public string shipIdentifier;
+
   public float throttle = 0;
-  //[SyncVar]
   public float pitch = 0;
-  //[SyncVar]
   public float roll = 0;
-  //[SyncVar]
   public float yaw = 0;
   [SyncVar]
   public bool fire1 = false;
   [SyncVar]
   public bool fire2 = false;
-//  [SyncVar]
   public int averagePing = 0;
   [SyncVar]
   public string team;
 
   public bool serverControl = false;
+
+  public void RandomizeShip () {
+    shipIdentifier = ShipDataHolder.instance.shipData [Random.Range (0, ShipDataHolder.instance.shipData.Length - 1)].identifier;
+  }
 
   public virtual void Replace (GameObject ship) {
     if (ship != Ship) {

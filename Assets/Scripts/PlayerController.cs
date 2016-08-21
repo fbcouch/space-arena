@@ -105,6 +105,7 @@ public class PlayerController : NetworkBehaviour {
   private Vector3 dampAngularVelocity = Vector3.zero;
 
   void FixedUpdate () {
+    UpdateMesh ();
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
     if (isDead) {
       rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, 0);
@@ -347,6 +348,18 @@ public class PlayerController : NetworkBehaviour {
 
     rigidBody.angularVelocity = rigidBody.rotation * new Vector3 (0, 0, 0);
     RpcOnRespawn (spawn.transform.position, spawn.transform.rotation);
+  }
+
+  public void UpdateMesh () {
+    if (player == null)
+      return;
+    
+    GameObject shipObj = transform.FindChild ("Ship").gameObject;
+    var shipData = ShipDataHolder.instance.Find (player.shipIdentifier);
+    if (shipObj != null && shipData != null) {
+      shipObj.GetComponent<MeshFilter> ().mesh = shipData.mesh;
+      shipObj.GetComponent<MeshCollider> ().sharedMesh = shipData.mesh;
+    }
   }
 
   [ClientRpc]

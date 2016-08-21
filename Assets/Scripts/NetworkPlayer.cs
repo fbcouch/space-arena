@@ -36,9 +36,22 @@ public class NetworkPlayer : Player {
   public void Start () {
     if (!isLocalPlayer)
       return;
+    LoadShipFromPreferences ();
     if (isServer)
       return;
     StartCoroutine (SendPing ());
+  }
+
+  public void LoadShipFromPreferences () {
+    shipIdentifier = ShipDataHolder.instance.shipData [0].identifier;
+    if (!PlayerPrefs.HasKey ("shipIdentifier"))
+      return;
+
+    ShipData data = ShipDataHolder.instance.Find (PlayerPrefs.GetString ("shipIdentifier"));
+    if (data == null)
+      return;
+
+    shipIdentifier = data.identifier;
   }
 
   public void FixedUpdate () {

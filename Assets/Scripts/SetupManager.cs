@@ -14,6 +14,7 @@ public class SetupManager : MonoBehaviour {
 	public GameObject playerNameInput;
 	public GameObject musicToggle;
 	public GameObject musicPlayer;
+  public Dropdown shipSelector;
 
 	public LobbyManager networkManager;
 
@@ -143,12 +144,29 @@ public class SetupManager : MonoBehaviour {
 			bool musicEnabled = PlayerPrefs.GetInt ("musicEnabled") == 1;
 			musicToggle.GetComponent<Toggle> ().isOn = musicEnabled;
 		}
+
+    shipSelector.ClearOptions ();
+    var ships = new System.Collections.Generic.List<Dropdown.OptionData> ();
+    foreach (ShipData shipData in ShipDataHolder.instance.shipData) {
+      ships.Add (new Dropdown.OptionData (shipData.displayName));
+    }
+    shipSelector.AddOptions (ships);
+
+
+    if (PlayerPrefs.HasKey ("shipIdentifier")) {
+      for (int i = 0; i < ShipDataHolder.instance.shipData.Length; i++) {
+        string shipIdentifier = PlayerPrefs.GetString ("shipIdentifier");
+        if (ShipDataHolder.instance.shipData [i].identifier == shipIdentifier)
+          shipSelector.value = i;
+      }
+    }
 	}
 
 	public void SaveOptions () {
 		Debug.Log ("Save Options");
 		PlayerPrefs.SetString ("playerName", playerNameInput.GetComponent<InputField> ().text);
 		PlayerPrefs.SetInt ("musicEnabled", musicToggle.GetComponent<Toggle> ().isOn ? 1 : 0);
+    PlayerPrefs.SetString ("shipIdentifier", ShipDataHolder.instance.shipData [shipSelector.value].identifier);
 		PlayerPrefs.Save ();
 
 		RunOptions ();

@@ -14,6 +14,7 @@ public class AIPlayer : Player {
 	// Use this for initialization
 	void Start () {
     serverControl = true;
+    RandomizeShip ();
 	}
 	
 	// Update is called once per frame

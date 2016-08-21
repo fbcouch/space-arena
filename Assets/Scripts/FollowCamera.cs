@@ -63,10 +63,18 @@ public class FollowCamera : MonoBehaviour {
 
         transform.position = targetPos;
         transform.rotation = target.transform.rotation;
+
+        foreach (Renderer r in target.gameObject.GetComponentsInChildren<Renderer> ()) {
+          r.enabled = false;
+        }
       } else {
         Transform targetTransform = target.transform.FindChild ("Camera3").transform;
         transform.position = targetTransform.position;
         transform.rotation = targetTransform.rotation;
+
+        foreach (Renderer r in target.gameObject.GetComponentsInChildren<Renderer> ()) {
+          r.enabled = true;
+        }
       }
     }
   }

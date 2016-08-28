@@ -24,6 +24,7 @@ public class PlayerController : NetworkBehaviour {
   public Vector2 reticuleOffset = new Vector2(0, 0);
 
   public Vector3 angularThrust;
+  public Vector3 angularModifier = new Vector3(2f, 2f, 4f);
   public Vector3 maxAngularSpeed;
   public float thrust;
   public float maxSpeed;
@@ -353,12 +354,15 @@ public class PlayerController : NetworkBehaviour {
   public void UpdateMesh () {
     if (player == null)
       return;
-    
+
+    Rigidbody rigidBody = GetComponent<Rigidbody> ();
     GameObject shipObj = transform.FindChild ("Ship").gameObject;
     var shipData = ShipDataHolder.instance.Find (player.shipIdentifier);
     if (shipObj != null && shipData != null) {
       shipObj.GetComponent<MeshFilter> ().mesh = shipData.mesh;
       shipObj.GetComponent<MeshCollider> ().sharedMesh = shipData.mesh;
+
+      angularThrust = new Vector3(rigidBody.inertiaTensor.x * angularModifier.x, rigidBody.inertiaTensor.y * angularModifier.y, rigidBody.inertiaTensor.z * angularModifier.z);
     }
   }
 

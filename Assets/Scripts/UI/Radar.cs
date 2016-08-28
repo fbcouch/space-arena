@@ -9,7 +9,7 @@ public class Radar : MonoBehaviour {
   public RadarIndicator indicatorPrefab;
 	
 	// Update is called once per frame
-	void Update () {
+	void LateUpdate () {
     if (players.Length == 0) {
       players = GameObject.FindGameObjectsWithTag ("Player");
 

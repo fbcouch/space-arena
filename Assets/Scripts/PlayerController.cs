@@ -7,7 +7,7 @@ public class PlayerController : NetworkBehaviour {
   public static PlayerController localPlayer;
 
   public GameObject shot;
-  public Transform[] shotSpawns;
+  public Vector3[] shotSpawnPoints;
   public Camera camera;
   public GameObject shooter;
 
@@ -27,6 +27,7 @@ public class PlayerController : NetworkBehaviour {
   public Vector3 angularModifier = new Vector3(2f, 2f, 4f);
   public Vector3 maxAngularSpeed;
   public float thrust;
+  public float thrustModifier = 1.0f;
   public float maxSpeed;
   [SyncVar]
   public int curHealth = 20;
@@ -106,7 +107,7 @@ public class PlayerController : NetworkBehaviour {
   private Vector3 dampAngularVelocity = Vector3.zero;
 
   void FixedUpdate () {
-    UpdateMesh ();
+    UpdateShipData ();
     Rigidbody rigidBody = GetComponent<Rigidbody> ();
     if (isDead) {
       rigidBody.velocity = rigidBody.rotation * new Vector3 (0, 0, 0);
@@ -127,7 +128,7 @@ public class PlayerController : NetworkBehaviour {
     if (rigidBody.velocity.sqrMagnitude > Mathf.Pow(targetSpeed, 2)) {
       rigidBody.AddForce(rigidBody.velocity / rigidBody.velocity.magnitude * -1 * thrust);
     } else {
-      rigidBody.AddForce(transform.forward * thrust * player.throttle);
+      rigidBody.AddForce(transform.forward * thrust * player.throttle * thrustModifier);
     }
     rigidBody.velocity = Vector3.ClampMagnitude(rigidBody.velocity, maxSpeed);
     if (rigidBody.velocity.sqrMagnitude < 1 && player.throttle < 0.01f)
@@ -180,11 +181,11 @@ public class PlayerController : NetworkBehaviour {
       deserterCountdown = deserterTimeout;
     }
 
-    if (player.fire1 && Time.time > nextFire && curAmmo >= shotSpawns.Length) {
+    if (player.fire1 && Time.time > nextFire && curAmmo >= shotSpawnPoints.Length) {
       Debug.Log ("Fire!!!");
       nextFire = Time.time + fireRate;
       player.FireWeapons();
-      curAmmo -= shotSpawns.Length;
+      curAmmo -= shotSpawnPoints.Length;
     }
 
     if (player.fire2 && fire2Up) {
@@ -325,8 +326,10 @@ public class PlayerController : NetworkBehaviour {
   public void FireWeapons (float delay) {
     if (isDead) return;
     Debug.Log ("Firing at " + delay.ToString () + "s delay");
-    foreach (Transform shotSpawn in shotSpawns) {
-      GameObject missile = Instantiate (shot, shotSpawn.position, shotSpawn.rotation) as GameObject;
+    Debug.LogWarning ("Ship: " + transform.position);
+    var inverse = Quaternion.Inverse (transform.rotation);
+    foreach (Vector3 shotSpawn in shotSpawnPoints) {
+      GameObject missile = Instantiate (shot, transform.position + transform.rotation * shotSpawn, transform.rotation) as GameObject;
       missile.GetComponent<Bolt> ().shooter = shooter.gameObject;
       Rigidbody rigidBody = missile.GetComponent<Rigidbody> ();
 
@@ -351,7 +354,7 @@ public class PlayerController : NetworkBehaviour {
     RpcOnRespawn (spawn.transform.position, spawn.transform.rotation);
   }
 
-  public void UpdateMesh () {
+  public void UpdateShipData () {
     if (player == null)
       return;
 
@@ -362,7 +365,15 @@ public class PlayerController : NetworkBehaviour {
       shipObj.GetComponent<MeshFilter> ().mesh = shipData.mesh;
       shipObj.GetComponent<MeshCollider> ().sharedMesh = shipData.mesh;
 
-      angularThrust = new Vector3(rigidBody.inertiaTensor.x * angularModifier.x, rigidBody.inertiaTensor.y * angularModifier.y, rigidBody.inertiaTensor.z * angularModifier.z);
+      thrustModifier = shipData.thrustMod;
+      angularThrust = new Vector3(rigidBody.inertiaTensor.x * angularModifier.x, rigidBody.inertiaTensor.y * angularModifier.y, rigidBody.inertiaTensor.z * angularModifier.z) * shipData.angularThrustMod;
+      maxAmmo = shipData.maxAmmo;
+      maxHealth = shipData.maxHealth;
+      maxShield = shipData.maxShield;
+      fireRate = shipData.fireRate;
+      shieldRate = shipData.shieldRate;
+      ammoRate = shipData.ammoRate;
+      shotSpawnPoints = shipData.shotSpawns;
     }
   }
 

@@ -7,6 +7,7 @@ public class TargetCanvas : MonoBehaviour {
   public Text targetName, targetDist, targetKills, targetDeaths;
   public MeshRenderer targetRenderer;
   public MeshFilter targetFilter;
+  public Material blueMaterial, redMaterial;
 
 	// Use this for initialization
 	void Start () {
@@ -38,7 +39,11 @@ public class TargetCanvas : MonoBehaviour {
 
     MeshRenderer renderer = PlayerController.localPlayer.target.GetComponentInChildren<MeshRenderer> ();
     MeshFilter filter = PlayerController.localPlayer.target.GetComponentInChildren<MeshFilter> ();
-    targetRenderer.materials = renderer.materials;
+    if (playerController.player.team == "blue") {
+      targetRenderer.materials = new Material[] { blueMaterial, blueMaterial };
+    } else {
+      targetRenderer.materials = new Material[] { redMaterial, redMaterial };
+    }
     targetFilter.mesh = filter.mesh;
 	}
 }

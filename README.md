@@ -6,6 +6,8 @@ Artwork
 ---
 * "Skybox Volume 2 (Nebula)" - Unity Asset Store - Hedgehog Team
 * "Space Shooter" - Unity Asset Store - Unity Technologies
+* The F1 ship was created by [John Beck](https://github.com/jrbeck)
+* The capital ships were generated using a blender script by Michael Davies
 
 Audio
 ---
